@@ -11,10 +11,43 @@
 </head>
 
 <body>
-    <div id="root">
-        <div id="all-players"></div>
-        <div id="available-players"></div>
-        <button id="remove">duududud</button>
+    <div id="content">
+        <div id="available-container">
+            <div id="available-players"></div>
+        </div>
+
+        <button id="guestBtn" class="btn">Guest</button>
+        <button id="optBtn" class="btn">Options</button>
+        <button id="addBtn" class="btn">Add</button>
+        <button id="splitBtn" class="btn">SPLIT</button>
+
+        <div id="all-container" class="menu">
+            <div id="all-players"></div>
+            <button id="backPlyBtn" class="backBtn">Back</button>
+        </div>
+
+        <div id="options" class="menu">
+            <div id="nameFormatDiv">
+                <p>Name Format</p>
+                <label for="fullName">
+                    <input type="radio" name="nameFormat" id="fullName" value="fullName">
+                    Full Name</label>
+                <label for="camelCase">
+                    <input type="radio" name="nameFormat" id="camelCase" value="camelCase">
+                    Camel Case</label>
+                <label for="name">
+                    <input type="radio" name="nameFormat" id="name" value="name">
+                    Name</label>
+                <label for="surname">
+                    <input type="radio" name="nameFormat" id="surname" value="surname">
+                    Surname</label>
+                <label for="nickname">
+                    <input type="radio" name="nameFormat" id="nickname" value="nickname">
+                    Nickname</label>
+            </div>
+            <button id="resetBtn">Reset</button>
+            <button id="backOptBtn" class="backBtn">Back</button>
+        </div>
     </div>
 </body>
 

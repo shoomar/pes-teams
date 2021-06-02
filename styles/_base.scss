@@ -1,0 +1,23 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: standalone;
+    background-color: #333;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+@mixin addScroll($colour: yellowgreen) {
+    overflow: auto;
+    scrollbar-color: $colour;
+    scrollbar-width: thin;
+    &::-webkit-scrollbar {
+        width: 0.15rem;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: $colour;
+    }
+}
