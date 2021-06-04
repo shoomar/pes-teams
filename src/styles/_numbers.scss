@@ -1,0 +1,16 @@
+#numbers-container {
+    grid-column: 10/12;
+    height: 45vh;
+    background-color: darkgoldenrod;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.numberBtn {
+    background-color: pink;
+    font-size: 1.5rem;
+    width: 2rem;
+    margin: 0.6rem;
+}

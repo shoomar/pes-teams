@@ -1,0 +1,14 @@
+#stars {
+    background-color: brown;
+    grid-column: 8/14;
+    width: 100%;
+    position: absolute;
+    top: 70vh;
+    display: flex;
+    justify-content: space-around;
+    font-size: 2rem;
+}
+
+#starBtn {
+    top: 80vh;
+}

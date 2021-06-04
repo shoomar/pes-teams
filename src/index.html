@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./style.css">
-    <script defer src="./main.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0 user-scalable=no">
     <title>pes-teams</title>
 </head>
 
@@ -16,10 +14,23 @@
             <div id="available-players"></div>
         </div>
 
-        <button id="guestBtn" class="btn">Guest</button>
-        <button id="optBtn" class="btn">Options</button>
-        <button id="addBtn" class="btn">Add</button>
-        <button id="splitBtn" class="btn">SPLIT</button>
+        <div id="numbers-container">
+            <button disabled="true" class="numberBtn">3</button>
+            <button disabled="true" class="numberBtn">4</button>
+            <button disabled="true" class="numberBtn">5</button>
+            <button disabled="true" class="numberBtn">6</button>
+            <button disabled="true" class="numberBtn">7</button>
+            <button disabled="true" class="numberBtn">8</button>
+        </div>
+
+        <button id="optBtn" class="mainBtn">Opt</button>
+
+        <button id="addBtn" class="mainBtn">Add</button>
+
+        <div id="stars"></div>
+        <button id="starBtn" class="mainBtn">Star</button>
+
+        <button id="splitBtn" class="mainBtn">SPLIT</button>
 
         <div id="all-container" class="menu">
             <div id="all-players"></div>
