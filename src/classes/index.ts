@@ -1,5 +1,5 @@
 import { Player } from './player';
-import { PlayerPool } from './player-pool';
+import { Teams } from './teams';
 import { Stars } from './stars';
 
-export { Player, PlayerPool, Stars };
+export { Player, Teams, Stars };

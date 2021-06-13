@@ -1,4 +1,4 @@
-#numbers-container {
+#active-players-number {
     grid-column: 10/12;
     height: 45vh;
     background-color: darkgoldenrod;
@@ -8,9 +8,13 @@
     justify-content: space-around;
 }
 
-.numberBtn {
+.number-btn {
     background-color: pink;
     font-size: 1.5rem;
     width: 2rem;
     margin: 0.6rem;
+}
+
+.selected-number {
+    background-color: darkmagenta;
 }

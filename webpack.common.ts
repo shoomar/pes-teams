@@ -12,7 +12,7 @@ const common: Configuration = {
 			{
 				test : /\.tsx?$/,
 				use  : 'ts-loader',
-			},
+			}
 		]
 	},
 	resolve : { extensions: [ '.wasm', '.ts', '.tsx', '.mjs', '.cjs', '.js', '.json' ] },

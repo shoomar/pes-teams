@@ -1,0 +1,32 @@
+#options {
+	background-color: wheat;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+}
+
+#name-format {
+	font-size: 1.5em;
+	margin: 1em auto;
+	label {
+		display: block;
+		margin: 0.5em;
+	}
+}
+
+.min-max {
+	font-size: 1.6em;
+	select {
+		font-size: 0.9em;
+	}
+}
+
+#reset-btn {
+	font-size: 1.8em;
+	background-color: crimson;
+}
+
+#back-opt-btn {
+	font-size: 2em;
+}

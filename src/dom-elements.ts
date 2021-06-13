@@ -1,22 +1,38 @@
-export const optBtn = document.getElementById('optBtn') as HTMLButtonElement;
-
-export const addBtn = document.getElementById('addBtn') as HTMLButtonElement;
-
-export const starsDiv = document.getElementById('stars') as HTMLDivElement;
-export const starBtn = document.getElementById('starBtn') as HTMLButtonElement;
-
-export const splitBtn = document.getElementById('splitBtn') as HTMLButtonElement;
+// meta
+export const viewport = document.querySelector('meta[name=viewport]') as HTMLMetaElement;
 
 // available
 export const availablePlayersDiv = document.getElementById('available-players') as HTMLDivElement;
 
-// options
-export const optionsDiv = document.getElementById('options') as HTMLDivElement;
-export const nameFormatInputs = document.getElementsByName('nameFormat') as NodeListOf<HTMLInputElement>;
-export const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
-export const backOptBtn = document.getElementById('backOptBtn') as HTMLButtonElement;
+// team size
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+export const numberButtonList = document.querySelectorAll('.number-btn') as NodeListOf<HTMLButtonElement>;
+
+// main
+export const optBtn = document.getElementById('opt-btn') as HTMLButtonElement;
+export const addBtn = document.getElementById('add-btn') as HTMLButtonElement;
+export const starsDiv = document.getElementById('stars') as HTMLDivElement;
+export const starBtn = document.getElementById('star-btn') as HTMLButtonElement;
+export const splitBtn = document.getElementById('split-btn') as HTMLButtonElement;
 
 // all
 export const allContainerDiv = document.getElementById('all-container') as HTMLDivElement;
+export const guestBtn = document.getElementById('guest-btn') as HTMLButtonElement;
 export const allPlayersDiv = document.getElementById('all-players') as HTMLDivElement;
-export const backAllPlyBtn = document.getElementById('backPlyBtn') as HTMLButtonElement;
+export const backAllPlyBtn = document.getElementById('back-all-btn') as HTMLButtonElement;
+
+// guest
+export const addGuestDiv = document.getElementById('add-guest') as HTMLDivElement;
+export const addGuestForm = document.getElementById('add-guest-form') as HTMLFormElement;
+export const guestNameInput = document.getElementById('guest-name') as HTMLInputElement;
+export const backGuestBtn = document.getElementById('back-guest-btn') as HTMLButtonElement;
+
+// options
+export const optionsDiv = document.getElementById('options') as HTMLDivElement;
+export const nameFormatInputs = document.getElementsByName('name-format') as NodeListOf<HTMLInputElement>;
+export const minSelect = document.getElementById('min-select') as HTMLSelectElement;
+export const minSelectOpt = minSelect.querySelectorAll('option');
+export const maxSelect = document.getElementById('max-select') as HTMLSelectElement;
+export const maxSelectOpt = maxSelect.querySelectorAll('option');
+export const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+export const backOptBtn = document.getElementById('back-opt-btn') as HTMLButtonElement;

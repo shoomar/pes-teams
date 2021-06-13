@@ -3,12 +3,13 @@
     grid-column: 8/14;
     width: 100%;
     position: absolute;
-    top: 70vh;
+    top: 68vh;
     display: flex;
     justify-content: space-around;
     font-size: 2rem;
 }
 
-#starBtn {
-    top: 80vh;
+#star-btn {
+    top: 77vh;
+    grid-column: 9/13;
 }

@@ -1,0 +1,13 @@
+@use 'base';
+
+#available-container {
+	background-color: darkslateblue;
+	grid-column: 1/8;
+	height: 100vh;
+	@include base.addScroll;
+}
+
+#available-players {
+	background-color: tan;
+	width: 100%;
+}

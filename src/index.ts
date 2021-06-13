@@ -1,51 +1,31 @@
 import './styles/index.scss';
-import { PlayerPool, Stars } from './classes';
+import { Teams, Stars } from './classes';
 import { locale, pesCrew } from './customizable';
-import { addBtn, allContainerDiv, allPlayersDiv, availablePlayersDiv, backAllPlyBtn, backOptBtn, nameFormatInputs, optBtn, optionsDiv, resetBtn, splitBtn, starsDiv } from './dom-elements';
+import { addBtn, addGuestDiv, addGuestForm, allContainerDiv, allPlayersDiv, availablePlayersDiv, backAllPlyBtn, backGuestBtn, backOptBtn, guestBtn, guestNameInput, maxSelect, maxSelectOpt, minSelect, minSelectOpt, nameFormatInputs, numberButtonList, optBtn, optionsDiv, resetBtn, splitBtn, starBtn, starsDiv, viewport } from './dom-elements';
 import { NameFormat } from './types';
-// import { NameFormat, Player } from './Player';
-// import { starBtn, optBtn, addBtn, optionsDiv, nameFormatInputs, resetBtn, backOptBtn, allContainerDiv, backPlyBtn } from './dom-elements';
-// import { getPlayerPool, renderPlayerPool, sortAndSavePlayerPool, savePlayerPool } from './functions/player-pool';
-// export { getPlayerPool, savePlayerPool };
-// import { renderAvailablePool } from './functions/available-pool';
-// import { changeNameFormat, getNameFormat } from './functions/name-format';
-// import { pesCrew } from './customizable';
 
+// prevent soft keyboard from making problems with screen height
+viewport.setAttribute('content', `${viewport.content}, height=${window.innerHeight}`);
 
-const playerPool = new PlayerPool(
-	pesCrew, locale, availablePlayersDiv, allPlayersDiv
+// init
+const teams = new Teams(
+	pesCrew, locale, availablePlayersDiv, numberButtonList, allPlayersDiv
 );
 
-playerPool.render();
-
-const star = new Stars(starsDiv);
-star.render();
+const stars = new Stars(starsDiv);
 
 
-// const roll = () => {
-// 	availablePool.forEach((player) => {
-// 		player.roll = Math.random();
-// 	});
-// 	renderAvailablePool(getNameFormat());
-// 	savePlayerPool();
-// };
+// main
+numberButtonList.forEach((btn) => {
+	btn.addEventListener('click', (e) => {
+		const target = e.target as HTMLButtonElement;
+		teams.teamSize = parseInt(target.value);
+	});
+});
 
-// initial
-// console.log(getPlayerPool().length);
-// if (!getPlayerPool().length) {
-// 	pesCrew.forEach((crewMember) => {
-// 		const player = new Player(...crewMember);
-// 		getPlayerPool().push(player);
-// 	});
-// 	sortAndSavePlayerPool();
-// 	renderPlayerPool(getNameFormat());
-// }
-// else {
-// 	renderPlayerPool(getNameFormat());
-// 	renderAvailablePool(getNameFormat());
-// }
-
-// starBtn.addEventListener('click', () => renderAvailablePool(getNameFormat()));
+starBtn.addEventListener('click', () => {
+	stars.roll();
+});
 optBtn.addEventListener('click', () => {
 	optionsDiv.classList.add('open');
 });
@@ -54,18 +34,73 @@ addBtn.addEventListener('click', () => {
 	allContainerDiv.classList.add('open');
 });
 
-splitBtn.addEventListener('click', () => playerPool.roll());
+splitBtn.addEventListener('click', () => teams.roll());
 
+// all players
+addGuestDiv.addEventListener('transitionend', () => {
+	guestNameInput.focus();
+});
+
+guestBtn.addEventListener('click', () => {
+	addGuestDiv.classList.add('open');
+});
+
+backAllPlyBtn.addEventListener('click', () => {
+	allContainerDiv.classList.remove('open');
+});
+
+// guest
+backGuestBtn.addEventListener('click', () => {
+	addGuestDiv.classList.remove('open');
+});
+
+addGuestForm.onsubmit = () => {
+	const formData = new FormData(addGuestForm);
+	const name = formData.get('name') as string;
+	const surname = formData.get('surname') as string;
+	const nickname = formData.get('nickname') as string;
+	teams.add([ name, surname, nickname ]);
+	addGuestForm.reset();
+	addGuestDiv.classList.remove('open');
+	return false;
+};
 
 // options
 nameFormatInputs.forEach((input) => {
-	if (input.value === playerPool.nameFormat) {
+	if (input.value === teams.nameFormat) {
 		input.checked = true;
 	}
+	input.addEventListener('change', () => teams.nameFormat =  input.value as NameFormat);
 });
 
-nameFormatInputs.forEach((input) => {
-	input.addEventListener('change', () => playerPool.nameFormat =  input.value as NameFormat);
+minSelect.addEventListener('change', (e) => {
+	const opt = e.target as HTMLOptionElement;
+	stars.min = parseFloat(opt.value);
+	maxSelectOpt.forEach((opt) => {
+		if (parseFloat(opt.value) <= stars.min) {
+			opt.disabled = true;
+		}
+		else opt.disabled = false;
+	});
+});
+
+minSelectOpt.forEach((opt) => {
+	if (parseFloat(opt.value) === stars.min) opt.selected = true;
+});
+
+maxSelect.addEventListener('change', (e) => {
+	const opt = e.target as HTMLOptionElement;
+	stars.max = parseFloat(opt.value);
+	minSelectOpt.forEach((opt) => {
+		if (parseFloat(opt.value) >= stars.max) {
+			opt.disabled = true;
+		}
+		else opt.disabled = false;
+	});
+});
+
+maxSelectOpt.forEach((opt) => {
+	if (parseFloat(opt.value) === stars.max) opt.selected = true;
 });
 
 resetBtn.addEventListener('click', () => {
@@ -77,18 +112,3 @@ resetBtn.addEventListener('click', () => {
 backOptBtn.addEventListener('click', () => {
 	optionsDiv.classList.remove('open');
 });
-
-
-// all players
-backAllPlyBtn.addEventListener('click', () => {
-	allContainerDiv.classList.remove('open');
-});
-
-// let halfStar: string;
-// fetch('star.svg')
-// 	.then((r) => r.text())
-// 	.then((text) => {
-// 		halfStar = text;
-// 		console.log(halfStar);
-// 	})
-// 	.catch((err) => console.error(err));
