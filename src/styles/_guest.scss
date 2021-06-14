@@ -1,5 +1,8 @@
+@use 'sass:color';
+@use 'base';
+
 #add-guest {
-	background-color: wheat;
+	background-color: map-get($map: base.$colours, $key: "options-bg");
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -18,7 +21,8 @@
 		font-size: 1.3em;
 		max-width: 90vw;
 		&:focus {
-			border: 3px solid black;
+			outline: 3px solid color.adjust(map-get($map: base.$colours, $key: "options-bg"), $lightness: -25%);
+			outline-offset: -1px;
 		}
 	}
 }

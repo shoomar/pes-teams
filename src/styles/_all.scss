@@ -1,13 +1,14 @@
+@use 'base';
+
 #all-container {
-	background-color: teal;
+	background-color: map-get($map: base.$colours, $key: "background");
 	grid-column: 8/14;
 }
 
 #guest-btn {
-	background-color: tomato;
+	background-color: map-get($map: base.$colours, $key: "guest-btn-bg");
 }
 
 #all-players {
-	background-color: darkred;
 	min-height: 100vh;
 }

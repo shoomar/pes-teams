@@ -1,7 +1,10 @@
+@use 'sass:color';
+@use 'base';
+
 #active-players-number {
     grid-column: 10/12;
-    height: 45vh;
-    background-color: darkgoldenrod;
+    margin-top: 3rem;
+    height: 35vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -9,12 +12,15 @@
 }
 
 .number-btn {
-    background-color: pink;
+    background-color: map-get($map: base.$colours, $key: "number-btn-bg");
     font-size: 1.5rem;
     width: 2rem;
     margin: 0.6rem;
+    &:disabled {
+        background-color: color.adjust(map-get($map: base.$colours, $key: "number-btn-bg"), $saturation: -50%);
+    }
 }
 
 .selected-number {
-    background-color: darkmagenta;
+    background-color: map-get($map: base.$colours, $key: "selected-number-bg");
 }

@@ -1,3 +1,29 @@
+@use 'sass:map';
+@use 'sass:color';
+
+$colours: (
+    "theme-color": hsl(0, 0%, 20%),
+    "background": hsl(82, 42%, 29%),
+    "number-btn-bg": hsl(350, 100%, 88%),
+    "selected-number-bg": hsl(300, 100%, 27%),
+    "guest-btn-bg": hsl(9, 65%, 70%),
+    "options-bg": hsl(39, 50%, 75%),
+    "reset-btn-bg": hsl(348, 53%, 57%),
+    "star-btn-bg": hsl(39, 67%, 47%),
+    "split-btn-bg": hsl(195, 53%, 79%),
+);
+
+$player-clr: (
+    "background": hsl(0, 0%, 55%),
+    "text": hsl(0, 0%, 100%),
+    "blue-bg": hsl(240, 60%, 50%),
+    "blue-text": hsl(60, 33%, 95%),
+    "red-bg": hsl(0, 60%, 50%),
+    "red-text": hsl(0, 33%, 95%),
+    "defeated-bg": hsl(0, 0%, 0%),
+    "defeated-border": hsl(60, 100%, 50%),
+);
+
 * {
     margin: 0;
     padding: 0;
@@ -6,12 +32,12 @@
 
 body {
     display: standalone;
-    background-color: #333333;
+    background-color: map.get($colours, "theme-color");
     font-family: Arial, Helvetica, sans-serif;
     touch-action: none;
 }
 
-@mixin addScroll($colour: yellowgreen) {
+@mixin addScroll($colour: color.adjust(map.get($colours, "background"), $saturation: 10%)) {
     overflow: auto;
     scrollbar-color: $colour;
     scrollbar-width: thin;

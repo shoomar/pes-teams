@@ -1,14 +1,17 @@
+@use 'sass:color';
+@use 'base';
+
 .player {
-	background: hsl(0, 0%, 55%);
+	background: map-get($map: base.$player-clr, $key: "background");
 	width: 95%;
 	height: 3.5em;
 	margin: 0.5em auto;
-	border: 1px solid hsl(0, 1%, 20%);
+	border: 1px solid color.adjust(map-get($map: base.$player-clr, $key: "background"), $lightness: -23%);
 	border-radius: 0.4em;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	color: white;
+	color: map-get($map: base.$player-clr, $key: "text");
 	text-align: center;
 	user-select: none;
 	cursor: pointer;
@@ -23,27 +26,41 @@
 }
 
 .blue {
-	background-color: blue;
-	border: 3px solid darkblue;
-	transform: scale(1.1);
-	color: Yellow;
+	background-color: map-get($map: base.$player-clr, $key: "blue-bg");
+	border: 3px solid color.adjust(map-get($map: base.$player-clr, $key: "blue-bg"), $lightness: -23%);
+	color: map-get($map: base.$player-clr, $key: "blue-text");
 	font-weight: bold;
-	margin: 0px;
 }
 
 .red {
-	background-color: red;
-	border: 3px solid darkred;
-	// transform: scale(1.1);
-	color: black;
+	background-color: map-get($map: base.$player-clr, $key: "red-bg");
+	border: 3px solid color.adjust(map-get($map: base.$player-clr, $key: "red-bg"), $lightness: -23%);
+	color: map-get($map: base.$player-clr, $key: "red-text");
 	font-weight: bold;
-	// margin: 0px;
 }
 
 .defeated {
-	color: white;
-	background-color: black;
-	border: 3px solid yellow;
-	transform: scale(1.1);
-	margin: 0;
+	background-color: map-get($map: base.$player-clr, $key: "defeated-bg");
+	border: 3px solid map-get($map: base.$player-clr, $key: "defeated-border");
+}
+
+.first {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-bottom: 0;
+	margin-bottom: 0;
+}
+
+.middle {
+	border-radius: 0;
+	border-top: 0;
+	border-bottom: 0;
+	margin: 0 auto;
+}
+
+.last {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-top: 0;
+	margin-top: 0;
 }

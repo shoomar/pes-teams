@@ -9,7 +9,7 @@
 
 #content {
     margin: 0 auto;
-    background-color: #556b2f;
+    background-color: map-get($map: base.$colours, $key: "background");
     position: relative;
     max-width: 1080px;
     display: grid;
@@ -18,17 +18,21 @@
 }
 
 #opt-btn {
-    top: 50vh;
+    top: 48vh;
+    background-color: map-get($map: base.$colours, $key: "options-bg");
 }
 
 #add-btn {
-    top: 60vh;
+    top: 58vh;
+    background-color: map-get($map: base.$colours, $key: "guest-btn-bg");
 }
 
 #split-btn {
     top: 90vh;
     grid-column: 8/14;
     height: 10vh;
+    background-color: map-get($map: base.$colours, $key: "split-btn-bg");
+    border-top-left-radius: 0.4em;
 }
 
 .main-btn {

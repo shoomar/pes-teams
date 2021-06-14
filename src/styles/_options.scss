@@ -1,5 +1,7 @@
+@use 'base';
+
 #options {
-	background-color: wheat;
+	background-color: map-get($map: base.$colours, $key: "options-bg");
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -24,7 +26,7 @@
 
 #reset-btn {
 	font-size: 1.8em;
-	background-color: crimson;
+	background-color: map-get($map: base.$colours, $key: "reset-btn-bg");
 }
 
 #back-opt-btn {

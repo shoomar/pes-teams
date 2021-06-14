@@ -59,15 +59,6 @@ export class Teams {
 		this.renderAvailable();
 	}
 
-	set teamSize(x: number) {
-		if (x > 8 || x < 3) {
-			throw new Error('team size must be between 3 and 8');
-		}
-		this.#teamSize = x;
-		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
-		this.setNumberBtnList();
-		this.roll();
-	}
 
 	add(newPlayer: ConstructorParameters<typeof Player>): void {
 		const player = new Player(...newPlayer);
@@ -90,6 +81,17 @@ export class Teams {
 		this.renderPlayers();
 		this.renderAvailable();
 		localStorage.setItem(this.inLocalStorageNameFormat, this.#nameFormat);
+	}
+
+	private positionInTeamCssClass(idx: number) {
+		const endOfBlueIdx = Math.ceil(this.#teamSize / 2) - 1;
+		if (idx === 0 || idx === endOfBlueIdx + 1) {
+			return 'first';
+		}
+		else if (idx === endOfBlueIdx || idx === this.#teamSize - 1) {
+			return 'last';
+		}
+		else return 'middle';
 	}
 
 	roll(): void {
@@ -125,6 +127,15 @@ export class Teams {
 		this.savePool();
 	}
 
+	set teamSize(x: number) {
+		if (x > 8 || x < 3) {
+			throw new Error('team size must be between 3 and 8');
+		}
+		this.#teamSize = x;
+		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
+		this.setNumberBtnList();
+	}
+
 	private renderAvailable(): void {
 		while (this.availablesElement.lastChild) {
 			this.availablesElement.lastChild.remove();
@@ -132,7 +143,7 @@ export class Teams {
 
 		this.availablePool.sort((a, b) => a.roll - b.roll);
 
-		this.availablePool.forEach((player) => {
+		this.availablePool.forEach((player, idx) => {
 			const availableDiv = document.createElement('div');
 
 			availableDiv.id = player.idx.toString();
@@ -143,12 +154,15 @@ export class Teams {
 			switch (player.status) {
 				case Status.blue:
 					availableDiv.classList.add(Status.blue);
+					availableDiv.classList.add(this.positionInTeamCssClass(idx));
 					break;
 				case Status.red:
 					availableDiv.classList.add(Status.red);
+					availableDiv.classList.add(this.positionInTeamCssClass(idx));
 					break;
 				case Status.defeated:
 					availableDiv.classList.add(Status.defeated);
+					availableDiv.classList.add(this.positionInTeamCssClass(idx));
 					break;
 				default:
 					break;
@@ -190,7 +204,7 @@ export class Teams {
 				const target = e.target as HTMLDivElement;
 				const player = this.pool[parseInt(target.id)];
 				player.status = Status.off;
-				player.roll = -1;
+				player.roll = Infinity;
 				this.setAvailable();
 				this.setTeamSize();
 				this.renderAvailable();
@@ -225,7 +239,7 @@ export class Teams {
 				const target = e.target as HTMLDivElement;
 				target.classList.add(Status.off);
 				this.pool[parseInt(target.id)].status = Status.available;
-				this.pool[parseInt(target.id)].roll = -1;
+				this.pool[parseInt(target.id)].roll = Infinity;
 				this.setAvailable();
 				this.setTeamSize();
 				this.renderAvailable();
