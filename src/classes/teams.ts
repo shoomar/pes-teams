@@ -70,9 +70,11 @@ export class Teams {
 		this.renderAvailable();
 	}
 
+
 	get nameFormat(): NameFormat {
 		return this.#nameFormat;
 	}
+
 
 	set nameFormat(format: NameFormat) {
 		this.#nameFormat = format;
@@ -83,16 +85,31 @@ export class Teams {
 		localStorage.setItem(this.inLocalStorageNameFormat, this.#nameFormat);
 	}
 
-	private positionInTeamCssClass(idx: number) {
-		const endOfBlueIdx = Math.ceil(this.#teamSize / 2) - 1;
-		if (idx === 0 || idx === endOfBlueIdx + 1) {
-			return 'first';
+
+	private positionInTeamCssClass(idx: number, status: Status, element: HTMLDivElement ) {
+		let first: number | null = null;
+		let last: number | null = null;
+
+		for (let i = 0; i < this.availablePool.length; i++) {
+			const player = this.availablePool[i];
+			if (player.status === status) {
+				first = first ?? i;
+				last = i;
+			}
 		}
-		else if (idx === endOfBlueIdx || idx === this.#teamSize - 1) {
-			return 'last';
+
+		if (first === last && first === idx) {
+			return;
 		}
-		else return 'middle';
+		else if (idx === first) {
+			element.classList.add('first');
+		}
+		else if (idx === last) {
+			element.classList.add('last');
+		}
+		else element.classList.add('middle');
 	}
+
 
 	roll(): void {
 		if (this.availablePool.length < 3) return;
@@ -127,6 +144,7 @@ export class Teams {
 		this.savePool();
 	}
 
+
 	set teamSize(x: number) {
 		if (x > 8 || x < 3) {
 			throw new Error('team size must be between 3 and 8');
@@ -135,6 +153,7 @@ export class Teams {
 		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
 		this.setNumberBtnList();
 	}
+
 
 	private renderAvailable(): void {
 		while (this.availablesElement.lastChild) {
@@ -153,16 +172,16 @@ export class Teams {
 
 			switch (player.status) {
 				case Status.blue:
-					availableDiv.classList.add(Status.blue);
-					availableDiv.classList.add(this.positionInTeamCssClass(idx));
+					availableDiv.classList.add(player.status);
+					this.positionInTeamCssClass(idx, player.status, availableDiv);
 					break;
 				case Status.red:
-					availableDiv.classList.add(Status.red);
-					availableDiv.classList.add(this.positionInTeamCssClass(idx));
+					availableDiv.classList.add(player.status);
+					this.positionInTeamCssClass(idx, player.status, availableDiv);
 					break;
 				case Status.defeated:
-					availableDiv.classList.add(Status.defeated);
-					availableDiv.classList.add(this.positionInTeamCssClass(idx));
+					availableDiv.classList.add(player.status);
+					this.positionInTeamCssClass(idx, player.status, availableDiv);
 					break;
 				default:
 					break;
@@ -223,6 +242,7 @@ export class Teams {
 		});
 	}
 
+
 	private renderPlayers(): void {
 		while (this.allElement.lastChild) {
 			this.allElement.lastChild.remove();
@@ -260,13 +280,16 @@ export class Teams {
 		});
 	}
 
+
 	private savePool(): void {
 		sessionStorage.setItem(this.inSessionStoragePlayerPool, JSON.stringify(this.pool));
 	}
 
+
 	private setAvailable(): void {
 		this.availablePool = this.pool.filter((player) => player.status !== Status.off);
 	}
+
 
 	private setNumberBtnList(): void {
 		this.numberButtonsList.forEach((btn) => {
@@ -282,10 +305,12 @@ export class Teams {
 		});
 	}
 
+
 	private setTeamSize() {
 		this.#teamSize = this.availablePool.length > 8 ? 8 : this.availablePool.length;
 		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
 	}
+
 
 	private sortPool(): void {
 		this.pool.sort((a, b) => a[this.#nameFormat].localeCompare(b[this.#nameFormat], this.language));

@@ -35,9 +35,11 @@ export class Stars {
 		}
 	}
 
+
 	get max(): number {
 		return this.#max;
 	}
+
 
 	set max(value: number) {
 		if (value <= this.#min) {
@@ -52,9 +54,11 @@ export class Stars {
 		);
 	}
 
+
 	get min(): number {
 		return this.#min;
 	}
+
 
 	set min(value: number) {
 		if (value >= this.#max) {
@@ -69,6 +73,7 @@ export class Stars {
 		);
 	}
 
+
 	roll(): void {
 		if (!this.lvlvsForRoll.length) this.lvlvsForRoll = [ ...this.selectedLvls ];
 		const idx = Math.floor(Math.random() * this.lvlvsForRoll.length);
@@ -81,6 +86,7 @@ export class Stars {
 			this.render(rollValue);
 		}
 	}
+
 
 	private render(numOfStars: number) {
 		while (this.parentElement.lastChild) {
@@ -110,6 +116,7 @@ export class Stars {
 
 		this.parentElement.innerHTML = content;
 	}
+
 
 	private starCreator(colour: 'black' | 'half' | 'full', id = 0) {
 		const creator = (left: string, right: string) => {

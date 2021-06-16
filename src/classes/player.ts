@@ -9,6 +9,7 @@ export class Player implements NamingConventions {
 	status = Status.off;
 	roll = Infinity;
 
+
 	constructor(
 		readonly name: string,
 		readonly surname: string,
