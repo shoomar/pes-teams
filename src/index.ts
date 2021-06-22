@@ -26,6 +26,7 @@ numberButtonList.forEach((btn) => {
 starBtn.addEventListener('click', () => {
 	stars.roll();
 });
+
 optBtn.addEventListener('click', () => {
 	optionsDiv.classList.add('open');
 });
