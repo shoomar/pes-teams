@@ -45,7 +45,7 @@ export const pesCrew: ConstructorParameters<typeof Player>[] = [
 	[
 		'Filip',
 		'Sabo Batanč',
-		'Filip'
+		'Batanč'
 	],
 	[
 		'Ivan',
