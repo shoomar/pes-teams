@@ -66,8 +66,10 @@ export class Teams {
 		this.pool.push(player);
 		this.sortPool();
 		this.setAvailable();
+		this.setTeamSize();
 		this.renderPlayers();
 		this.renderAvailable();
+		this.setNumberBtnList();
 	}
 
 
@@ -229,7 +231,7 @@ export class Teams {
 					clickTimer = null;
 					const player = this.pool[parseInt(target.id)];
 					player.status = Status.off;
-					player.roll = Infinity;
+					player.roll = 42;
 					this.setAvailable();
 					this.setTeamSize();
 					this.renderAvailable();
@@ -244,29 +246,6 @@ export class Teams {
 				}
 
 			});
-
-			// let clickTimer: number | null = null;
-			// const touchStart = () => {
-			// 	if (clickTimer == null) {
-			// 		clickTimer = window.setTimeout(function () {
-			// 			clickTimer = null;
-			// 			alert('single');
-
-			// 		}, 500);
-			// 	}
-			// 	else {
-			// 		clearTimeout(clickTimer);
-			// 		clickTimer = null;
-			// 		alert('double');
-
-			// 	}
-			// };
-
-			// availableDiv.addEventListener('click', touchStart);
-
-
-			// availableDiv.addEventListener('dblclick', (e) => {
-			// });
 
 			this.availablesElement.appendChild(availableDiv);
 		});
@@ -289,7 +268,7 @@ export class Teams {
 				const target = e.target as HTMLDivElement;
 				target.classList.add(Status.off);
 				this.pool[parseInt(target.id)].status = Status.available;
-				this.pool[parseInt(target.id)].roll = Infinity;
+				this.pool[parseInt(target.id)].roll = 42;
 				this.setAvailable();
 				this.setTeamSize();
 				this.renderAvailable();
