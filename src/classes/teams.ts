@@ -86,31 +86,6 @@ export class Teams {
 	}
 
 
-	private positionInTeamCssClass(idx: number, status: Status, element: HTMLDivElement ) {
-		let first: number | null = null;
-		let last: number | null = null;
-
-		for (let i = 0; i < this.availablePool.length; i++) {
-			const player = this.availablePool[i];
-			if (player.status === status) {
-				first = first ?? i;
-				last = i;
-			}
-		}
-
-		if (first === last && first === idx) {
-			return;
-		}
-		else if (idx === first) {
-			element.classList.add('first');
-		}
-		else if (idx === last) {
-			element.classList.add('last');
-		}
-		else element.classList.add('middle');
-	}
-
-
 	roll(): void {
 		if (this.availablePool.length < 3) return;
 		this.availablePool.forEach((player) => {
@@ -155,6 +130,31 @@ export class Teams {
 	}
 
 
+	private positionInTeamCssClass(idx: number, status: Status, element: HTMLDivElement ) {
+		let first: number | null = null;
+		let last: number | null = null;
+
+		for (let i = 0; i < this.availablePool.length; i++) {
+			const player = this.availablePool[i];
+			if (player.status === status) {
+				first = first ?? i;
+				last = i;
+			}
+		}
+
+		if (first === last && first === idx) {
+			return;
+		}
+		else if (idx === first) {
+			element.classList.add('first');
+		}
+		else if (idx === last) {
+			element.classList.add('last');
+		}
+		else element.classList.add('middle');
+	}
+
+
 	private renderAvailable(): void {
 		while (this.availablesElement.lastChild) {
 			this.availablesElement.lastChild.remove();
@@ -187,56 +187,86 @@ export class Teams {
 					break;
 			}
 
+			let clickTimer: number | null = null;
 			availableDiv.addEventListener('click', (e) => {
 				const target = e.target as HTMLDivElement;
-				const status = this.pool[parseInt(target.id)].status;
+				if (clickTimer === null) {
+					clickTimer = window.setTimeout(() => {
+						const status = this.pool[parseInt(target.id)].status;
 
-				if (status === Status.blue || status === Status.red) {
-					if (
-						this.availablePool.some((player) => player.status === Status.defeated)
-					) {
-						return;
-					}
+						if (status === Status.blue || status === Status.red) {
+							if (
+								this.availablePool.some((player) => player.status === Status.defeated)
+							) {
+								return;
+							}
 
-					this.availablePool.forEach((player) => {
-						if (status === player.status) {
-							player.status = Status.defeated;
+							this.availablePool.forEach((player) => {
+								if (status === player.status) {
+									player.status = Status.defeated;
+								}
+							});
+						}
+
+						if (status === Status.defeated) {
+							const blueWon = this.availablePool.some((player) => player.status === Status.blue);
+
+							this.availablePool.forEach((player) => {
+								if (player.status === status ) {
+									player.status = blueWon ? Status.red : Status.blue;
+								}
+							});
+						}
+
+						this.renderAvailable();
+						this.savePool();
+
+					}, 250);
+				}
+				// dblclick
+				else {
+					clearTimeout(clickTimer);
+					clickTimer = null;
+					const player = this.pool[parseInt(target.id)];
+					player.status = Status.off;
+					player.roll = Infinity;
+					this.setAvailable();
+					this.setTeamSize();
+					this.renderAvailable();
+					this.allElement.childNodes.forEach((node) => {
+						const nodeElement = node as HTMLDivElement;
+						if (nodeElement.id === target.id) {
+							nodeElement.classList.remove(Status.off);
 						}
 					});
+					this.setNumberBtnList();
+					this.savePool();
 				}
 
-				if (status === Status.defeated) {
-					const blueWon = this.availablePool.some((player) => player.status === Status.blue);
-
-					this.availablePool.forEach((player) => {
-						if (player.status === status ) {
-							player.status = blueWon ? Status.red : Status.blue;
-						}
-					});
-				}
-
-				this.renderAvailable();
-				this.savePool();
 			});
 
-			availableDiv.addEventListener('dblclick', (e) => {
-				const target = e.target as HTMLDivElement;
-				const player = this.pool[parseInt(target.id)];
-				player.status = Status.off;
-				player.roll = Infinity;
-				this.setAvailable();
-				this.setTeamSize();
-				this.renderAvailable();
-				this.allElement.childNodes.forEach((node) => {
-					const nodeElement = node as HTMLDivElement;
-					if (nodeElement.id === target.id) {
-						nodeElement.classList.remove(Status.off);
-					}
-				});
-				this.setNumberBtnList();
-				this.savePool();
-			});
+			// let clickTimer: number | null = null;
+			// const touchStart = () => {
+			// 	if (clickTimer == null) {
+			// 		clickTimer = window.setTimeout(function () {
+			// 			clickTimer = null;
+			// 			alert('single');
 
+			// 		}, 500);
+			// 	}
+			// 	else {
+			// 		clearTimeout(clickTimer);
+			// 		clickTimer = null;
+			// 		alert('double');
+
+			// 	}
+			// };
+
+			// availableDiv.addEventListener('click', touchStart);
+
+
+			// availableDiv.addEventListener('dblclick', (e) => {
+			// });
 
 			this.availablesElement.appendChild(availableDiv);
 		});

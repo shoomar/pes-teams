@@ -5,7 +5,22 @@ import { addBtn, addGuestDiv, addGuestForm, allContainerDiv, allPlayersDiv, avai
 import { NameFormat } from './types';
 
 // prevent soft keyboard from making problems with screen height
-viewport.setAttribute('content', `${viewport.content}, height=${window.innerHeight}`);
+if (
+	!(
+		[
+			'iPad Simulator',
+			'iPhone Simulator',
+			'iPod Simulator',
+			'iPad',
+			'iPhone',
+			'iPod'
+		].includes(navigator.platform)
+	// iPad on iOS 13 detection
+	|| (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
+	)
+) {
+	viewport.setAttribute('content', `${viewport.content}, height=${window.innerHeight}`);
+}
 
 // init
 const teams = new Teams(
@@ -26,6 +41,7 @@ numberButtonList.forEach((btn) => {
 starBtn.addEventListener('click', () => {
 	stars.roll();
 });
+
 optBtn.addEventListener('click', () => {
 	optionsDiv.classList.add('open');
 });
