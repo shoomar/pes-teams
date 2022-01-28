@@ -1,3 +1,5 @@
+import { RollType } from '../types';
+
 export class Stars {
 
 	private inSessionStorage = 'stars';
@@ -7,6 +9,7 @@ export class Stars {
 
 	#min: number;
 	#max: number;
+	#rollType: RollType;
 	private selectedLvls: number[];
 	private lvlvsForRoll: number[] = [];
 	private lastRoll = 0;
@@ -16,13 +19,15 @@ export class Stars {
 	) {
 		const fromSession = sessionStorage.getItem(this.inSessionStorage);
 		if (fromSession) {
-			const minMaxArr = JSON.parse(fromSession) as number[];
-			this.#min = minMaxArr[0];
-			this.#max = minMaxArr[1];
+			const settingsArr = JSON.parse(fromSession) as number[];
+			this.#min = settingsArr[0];
+			this.#max = settingsArr[1];
+			this.#rollType = settingsArr[2];
 		}
 		else {
 			this.#min = 1.5;
 			this.#max = 5;
+			this.#rollType = RollType.every;
 		}
 
 		this.selectedLvls = this.lvls.slice(
@@ -46,7 +51,7 @@ export class Stars {
 			throw new Error('maximum must be at least 0.5 more than min');
 		}
 		this.#max = value;
-		sessionStorage.setItem(this.inSessionStorage, `[${this.#min}, ${this.#max}]`);
+		sessionStorage.setItem(this.inSessionStorage, `[${this.#min}, ${this.#max}], ${this.#rollType}]`);
 		this.lvlvsForRoll = [];
 		this.selectedLvls = this.lvls.slice(
 			this.lvls.indexOf(this.#min),
@@ -65,7 +70,7 @@ export class Stars {
 			throw new Error('minimum must be at least 0.5 less than max');
 		}
 		this.#min = value;
-		sessionStorage.setItem(this.inSessionStorage, `[${this.#min}, ${this.#max}]`);
+		sessionStorage.setItem(this.inSessionStorage, `[${this.#min}, ${this.#max}], ${this.#rollType}]`);
 		this.lvlvsForRoll = [];
 		this.selectedLvls = this.lvls.slice(
 			this.lvls.indexOf(this.#min),
@@ -74,10 +79,43 @@ export class Stars {
 	}
 
 
+	get rollType() {
+		return this.#rollType;
+	}
+
+
+	set rollType(value: RollType) {
+		if (!Object.values(RollType).includes(value)) {
+			throw new Error('role type value must be 0 or 1');
+		}
+		this.#rollType = value;
+		this.lvlvsForRoll = [];
+		sessionStorage.setItem(this.inSessionStorage, `[${this.#min}, ${this.#max}, ${this.#rollType}]`);
+	}
+
+
 	roll(): void {
-		if (!this.lvlvsForRoll.length) this.lvlvsForRoll = [ ...this.selectedLvls ];
-		const idx = Math.floor(Math.random() * this.lvlvsForRoll.length);
-		const rollValue = this.lvlvsForRoll.splice(idx, 1)[0];
+		// every
+		// random
+		console.log(this.#rollType);
+		// separated by value
+		let rollValue: number;
+		switch (this.#rollType) {
+			case RollType.every: {
+				if (!this.lvlvsForRoll.length) this.lvlvsForRoll = [ ...this.selectedLvls ];
+				const idx = Math.floor(Math.random() * this.lvlvsForRoll.length);
+				rollValue = this.lvlvsForRoll.splice(idx, 1)[0];
+			}
+				break;
+			case RollType.random:{
+				const idx = Math.floor(Math.random() * this.selectedLvls.length);
+				rollValue = this.selectedLvls[idx];
+			}
+				break;
+			default:
+				throw new Error('role type value must be 0 or 1');
+		}
+
 		if (rollValue === this.lastRoll) {
 			this.roll();
 		}

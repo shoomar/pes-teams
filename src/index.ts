@@ -1,7 +1,7 @@
 import './styles/index.scss';
 import { Teams, Stars } from './classes';
 import { locale, pesCrew } from './customizable';
-import { addBtn, addGuestDiv, addGuestForm, allContainerDiv, allPlayersDiv, availablePlayersDiv, backAllPlyBtn, backGuestBtn, backOptBtn, guestBtn, guestNameInput, maxSelect, maxSelectOpt, minSelect, minSelectOpt, nameFormatInputs, numberButtonList, optBtn, optionsDiv, resetBtn, splitBtn, starBtn, starsDiv, viewport } from './dom-elements';
+import { addBtn, addGuestDiv, addGuestForm, allContainerDiv, allPlayersDiv, availablePlayersDiv, backAllPlyBtn, backGuestBtn, backOptBtn, guestBtn, guestNameInput, maxSelect, maxSelectOpt, minSelect, minSelectOpt, nameFormatInputs, numberButtonList, optBtn, optionsDiv, resetBtn, rollSelect, rollSelectOpt, splitBtn, starBtn, starsDiv, viewport } from './dom-elements';
 import { NameFormat } from './types';
 
 // prevent soft keyboard from making problems with screen height
@@ -87,6 +87,15 @@ nameFormatInputs.forEach((input) => {
 		input.checked = true;
 	}
 	input.addEventListener('change', () => teams.nameFormat =  input.value as NameFormat);
+});
+
+rollSelect.addEventListener('change', (e) => {
+	const opt = e.target as HTMLOptionElement;
+	stars.rollType = parseInt(opt.value);
+});
+
+rollSelectOpt.forEach((opt) => {
+	if (parseFloat(opt.value) === stars.rollType) opt.selected = true;
 });
 
 minSelect.addEventListener('change', (e) => {

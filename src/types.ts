@@ -15,3 +15,8 @@ export enum Status {
 	defeated = 'defeated',
 	off = 'off'
 }
+
+export enum RollType {
+	every,
+	random
+}

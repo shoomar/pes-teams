@@ -1,8 +1,9 @@
-import { Configuration } from 'webpack';
+import webpack from 'webpack';
+import { Configuration } from 'webpack-dev-server';
 import { merge } from 'webpack-merge';
 import common from './webpack.common';
 
-const dev: Configuration = merge(common, {
+const dev: webpack.Configuration & Configuration  = merge(common, {
 	mode    : 'development',
 	devtool : 'eval-source-map',
 	output  : {
@@ -21,13 +22,18 @@ const dev: Configuration = merge(common, {
 		]
 	},
 	devServer : {
-		stats              : 'minimal',
+		devMiddleware : {
+			stats : 'minimal'
+		},
+		client : {
+			overlay : true
+		},
+		static             : [ 'docs' ],
 		port               : 5500,
 		host               : '0.0.0.0',
-		overlay            : true,
 		historyApiFallback : true,
-		contentBase        : './docs',
-		hot                : true
+		hot                : true,
+		watchFiles         : 'src/index.html'
 	},
 });
 
