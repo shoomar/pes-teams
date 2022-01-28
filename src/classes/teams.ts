@@ -13,6 +13,8 @@ export class Teams {
 	private availablePool: Player[];
 
 	#teamSize: number;
+	blueLastRoster: number[];
+	redLastRoster: number[];
 
 	constructor(
 		private playerList: ConstructorParameters<typeof Player>[],
@@ -54,6 +56,9 @@ export class Teams {
 			this.#teamSize = this.availablePool.length > 8 ? 8 : this.availablePool.length;
 		}
 
+		this.blueLastRoster = [];
+		this.redLastRoster = [];
+
 		this.setNumberBtnList();
 		this.renderPlayers();
 		this.renderAvailable();
@@ -66,8 +71,10 @@ export class Teams {
 		this.pool.push(player);
 		this.sortPool();
 		this.setAvailable();
+		this.setTeamSize();
 		this.renderPlayers();
 		this.renderAvailable();
+		this.setNumberBtnList();
 	}
 
 
@@ -115,6 +122,8 @@ export class Teams {
 			else player.status = Status.available;
 		});
 
+		if (!this.checkRoster()) this.roll();
+		this.setRoster();
 		this.renderAvailable();
 		this.savePool();
 	}
@@ -127,6 +136,34 @@ export class Teams {
 		this.#teamSize = x;
 		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
 		this.setNumberBtnList();
+	}
+
+
+	private checkRoster(): boolean {
+		const blue: number[] = [];
+		const red: number[] = [];
+		this.availablePool.forEach(({ status, idx }) => {
+			switch (status) {
+				case 'blue':
+					blue.push(idx);
+					break;
+				case 'red':
+					red.push(idx);
+					break;
+				default:
+					break;
+			}
+		});
+
+		if (
+			blue.every((player) => this.blueLastRoster.includes(player))
+			|| blue.every((player) => this.redLastRoster.includes(player))
+			|| red.every((player) => this.blueLastRoster.includes(player))
+			|| red.every((player) => this.redLastRoster.includes(player))
+		) {
+			return false;
+		}
+		return true;
 	}
 
 
@@ -229,7 +266,7 @@ export class Teams {
 					clickTimer = null;
 					const player = this.pool[parseInt(target.id)];
 					player.status = Status.off;
-					player.roll = Infinity;
+					player.roll = 42;
 					this.setAvailable();
 					this.setTeamSize();
 					this.renderAvailable();
@@ -244,29 +281,6 @@ export class Teams {
 				}
 
 			});
-
-			// let clickTimer: number | null = null;
-			// const touchStart = () => {
-			// 	if (clickTimer == null) {
-			// 		clickTimer = window.setTimeout(function () {
-			// 			clickTimer = null;
-			// 			alert('single');
-
-			// 		}, 500);
-			// 	}
-			// 	else {
-			// 		clearTimeout(clickTimer);
-			// 		clickTimer = null;
-			// 		alert('double');
-
-			// 	}
-			// };
-
-			// availableDiv.addEventListener('click', touchStart);
-
-
-			// availableDiv.addEventListener('dblclick', (e) => {
-			// });
 
 			this.availablesElement.appendChild(availableDiv);
 		});
@@ -289,7 +303,7 @@ export class Teams {
 				const target = e.target as HTMLDivElement;
 				target.classList.add(Status.off);
 				this.pool[parseInt(target.id)].status = Status.available;
-				this.pool[parseInt(target.id)].roll = Infinity;
+				this.pool[parseInt(target.id)].roll = 42;
 				this.setAvailable();
 				this.setTeamSize();
 				this.renderAvailable();
@@ -331,6 +345,24 @@ export class Teams {
 				if (parseInt(btn.value) === this.#teamSize) {
 					btn.classList.add('selected-number');
 				}
+			}
+		});
+	}
+
+
+	private setRoster() {
+		this.blueLastRoster = [];
+		this.redLastRoster = [];
+		this.availablePool.forEach(({ status, idx }) => {
+			switch (status) {
+				case 'blue':
+					this.blueLastRoster.push(idx);
+					break;
+				case 'red':
+					this.redLastRoster.push(idx);
+					break;
+				default:
+					break;
 			}
 		});
 	}

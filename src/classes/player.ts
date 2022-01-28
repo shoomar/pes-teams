@@ -7,7 +7,7 @@ export class Player implements NamingConventions {
 	readonly fullName: string;
 	readonly camelCase: string;
 	status = Status.off;
-	roll = Infinity;
+	roll = 42;
 
 
 	constructor(
