@@ -13,6 +13,8 @@ export class Teams {
 	private availablePool: Player[];
 
 	#teamSize: number;
+	blueLastRoster: number[];
+	redLastRoster: number[];
 
 	constructor(
 		private playerList: ConstructorParameters<typeof Player>[],
@@ -53,6 +55,9 @@ export class Teams {
 		else {
 			this.#teamSize = this.availablePool.length > 8 ? 8 : this.availablePool.length;
 		}
+
+		this.blueLastRoster = [];
+		this.redLastRoster = [];
 
 		this.setNumberBtnList();
 		this.renderPlayers();
@@ -117,6 +122,8 @@ export class Teams {
 			else player.status = Status.available;
 		});
 
+		if (!this.checkRoster()) this.roll();
+		this.setRoster();
 		this.renderAvailable();
 		this.savePool();
 	}
@@ -129,6 +136,34 @@ export class Teams {
 		this.#teamSize = x;
 		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
 		this.setNumberBtnList();
+	}
+
+
+	private checkRoster(): boolean {
+		const blue: number[] = [];
+		const red: number[] = [];
+		this.availablePool.forEach(({ status, idx }) => {
+			switch (status) {
+				case 'blue':
+					blue.push(idx);
+					break;
+				case 'red':
+					red.push(idx);
+					break;
+				default:
+					break;
+			}
+		});
+
+		if (
+			blue.every((player) => this.blueLastRoster.includes(player))
+			|| blue.every((player) => this.redLastRoster.includes(player))
+			|| red.every((player) => this.blueLastRoster.includes(player))
+			|| red.every((player) => this.redLastRoster.includes(player))
+		) {
+			return false;
+		}
+		return true;
 	}
 
 
@@ -310,6 +345,24 @@ export class Teams {
 				if (parseInt(btn.value) === this.#teamSize) {
 					btn.classList.add('selected-number');
 				}
+			}
+		});
+	}
+
+
+	private setRoster() {
+		this.blueLastRoster = [];
+		this.redLastRoster = [];
+		this.availablePool.forEach(({ status, idx }) => {
+			switch (status) {
+				case 'blue':
+					this.blueLastRoster.push(idx);
+					break;
+				case 'red':
+					this.redLastRoster.push(idx);
+					break;
+				default:
+					break;
 			}
 		});
 	}
