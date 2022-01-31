@@ -51,7 +51,7 @@ export class Stars {
 			throw new Error('maximum must be at least 0.5 more than min');
 		}
 		this.#max = value;
-		sessionStorage.setItem(this.inSessionStorage, `[${this.#min}, ${this.#max}], ${this.#rollType}]`);
+		sessionStorage.setItem(this.inSessionStorage, `[${this.#min}, ${this.#max}, ${this.#rollType}]`);
 		this.lvlvsForRoll = [];
 		this.selectedLvls = this.lvls.slice(
 			this.lvls.indexOf(this.#min),
@@ -70,7 +70,7 @@ export class Stars {
 			throw new Error('minimum must be at least 0.5 less than max');
 		}
 		this.#min = value;
-		sessionStorage.setItem(this.inSessionStorage, `[${this.#min}, ${this.#max}], ${this.#rollType}]`);
+		sessionStorage.setItem(this.inSessionStorage, `[${this.#min}, ${this.#max}, ${this.#rollType}]`);
 		this.lvlvsForRoll = [];
 		this.selectedLvls = this.lvls.slice(
 			this.lvls.indexOf(this.#min),
