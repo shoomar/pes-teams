@@ -36,5 +36,7 @@ export const minSelect = document.getElementById('min-select') as HTMLSelectElem
 export const minSelectOpt = minSelect.querySelectorAll('option');
 export const maxSelect = document.getElementById('max-select') as HTMLSelectElement;
 export const maxSelectOpt = maxSelect.querySelectorAll('option');
+export const resultOffset = document.getElementById('result-offset') as HTMLSelectElement;
+export const resultOffsetOpt = resultOffset.querySelectorAll('option');
 export const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
 export const backOptBtn = document.getElementById('back-opt-btn') as HTMLButtonElement;

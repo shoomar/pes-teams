@@ -1,4 +1,4 @@
-@use 'base';
+@use "base";
 
 #options {
 	background-color: map-get($map: base.$colours, $key: "options-bg");
@@ -19,6 +19,10 @@
 
 .star-settings {
 	font-size: 1.6em;
+	div,
+	p {
+		margin-bottom: 0.5em;
+	}
 	select {
 		font-size: 0.9em;
 	}

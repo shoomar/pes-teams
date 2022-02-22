@@ -33,5 +33,8 @@
     "build": "webpack --config webpack.production.ts"
   },
   "author": "shoomar",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "localforage": "^1.10.0"
+  }
 }

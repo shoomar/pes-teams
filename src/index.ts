@@ -1,8 +1,9 @@
 import './styles/index.scss';
 import { Teams, Stars } from './classes';
 import { locale, pesCrew } from './customizable';
-import { addBtn, addGuestDiv, addGuestForm, allContainerDiv, allPlayersDiv, availablePlayersDiv, backAllPlyBtn, backGuestBtn, backOptBtn, guestBtn, guestNameInput, maxSelect, maxSelectOpt, minSelect, minSelectOpt, nameFormatInputs, numberButtonList, optBtn, optionsDiv, resetBtn, rollSelect, rollSelectOpt, splitBtn, starBtn, starsDiv, viewport } from './dom-elements';
-import { NameFormat } from './types';
+import { addBtn, addGuestDiv, addGuestForm, allContainerDiv, allPlayersDiv, availablePlayersDiv, backAllPlyBtn, backGuestBtn, backOptBtn, guestBtn, guestNameInput, maxSelect, maxSelectOpt, minSelect, minSelectOpt, nameFormatInputs, numberButtonList, optBtn, optionsDiv, resetBtn, resultOffset, resultOffsetOpt, rollSelect, rollSelectOpt, splitBtn, starBtn, starsDiv, viewport } from './dom-elements';
+import { NameFormat, StarMaximum, StarMinimum } from './types';
+import localforage from 'localforage';
 
 // prevent soft keyboard from making problems with screen height
 if (
@@ -38,8 +39,8 @@ numberButtonList.forEach((btn) => {
 	});
 });
 
-starBtn.addEventListener('click', () => {
-	stars.roll();
+starBtn.addEventListener('click', async () => {
+	await stars.roll();
 });
 
 optBtn.addEventListener('click', () => {
@@ -95,14 +96,15 @@ rollSelect.addEventListener('change', (e) => {
 });
 
 rollSelectOpt.forEach((opt) => {
-	if (parseFloat(opt.value) === stars.rollType) opt.selected = true;
+	if (parseInt(opt.value) === stars.rollType) opt.selected = true;
 });
 
 minSelect.addEventListener('change', (e) => {
 	const opt = e.target as HTMLOptionElement;
-	stars.min = parseFloat(opt.value);
+	stars.min = parseFloat(opt.value) as StarMinimum;
 	maxSelectOpt.forEach((opt) => {
-		if (parseFloat(opt.value) <= stars.min) {
+		const max = parseFloat(opt.value);
+		if (max <= stars.min || stars.min + stars.resultOffset + 0.5 > max) {
 			opt.disabled = true;
 		}
 		else opt.disabled = false;
@@ -115,9 +117,10 @@ minSelectOpt.forEach((opt) => {
 
 maxSelect.addEventListener('change', (e) => {
 	const opt = e.target as HTMLOptionElement;
-	stars.max = parseFloat(opt.value);
+	stars.max = parseFloat(opt.value) as StarMaximum;
 	minSelectOpt.forEach((opt) => {
-		if (parseFloat(opt.value) >= stars.max) {
+		const min = parseFloat(opt.value);
+		if (min >= stars.max || stars.max - stars.resultOffset - 0.5 < min) {
 			opt.disabled = true;
 		}
 		else opt.disabled = false;
@@ -128,7 +131,33 @@ maxSelectOpt.forEach((opt) => {
 	if (parseFloat(opt.value) === stars.max) opt.selected = true;
 });
 
-resetBtn.addEventListener('click', () => {
+resultOffset.addEventListener('change', (e) => {
+	const opt = e.target as HTMLOptionElement;
+	stars.resultOffset = parseInt(opt.value);
+	minSelectOpt.forEach((opt) => {
+		if (parseFloat(opt.value) === stars.min) opt.selected = true;
+		const min = parseFloat(opt.value);
+		if (min >= stars.max || stars.max - stars.resultOffset - 0.5 < min) {
+			opt.disabled = true;
+		}
+		else opt.disabled = false;
+	});
+	maxSelectOpt.forEach((opt) => {
+		if (parseFloat(opt.value) === stars.max) opt.selected = true;
+		const max = parseFloat(opt.value);
+		if (max <= stars.min || stars.min + stars.resultOffset + 0.5 > max) {
+			opt.disabled = true;
+		}
+		else opt.disabled = false;
+	});
+});
+
+resultOffsetOpt.forEach((opt) => {
+	if (parseInt(opt.value) === stars.resultOffset) opt.selected = true;
+});
+
+resetBtn.addEventListener('click', async() => {
+	await localforage.clear();
 	localStorage.clear();
 	sessionStorage.clear();
 	window.location.reload();
