@@ -58,6 +58,11 @@ export const pesCrew: ConstructorParameters<typeof Player>[] = [
 		'Zec'
 	],
 	[
+		'Luka',
+		'Erdeljanovic',
+		'Luka'
+	],
+	[
 		'Marko',
 		'Stamenković',
 		'Stameni'

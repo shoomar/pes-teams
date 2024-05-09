@@ -1,8 +1,8 @@
-import { Configuration } from 'webpack';
+import { Configuration as DevServerConfiguration } from 'webpack-dev-server';
 import { merge } from 'webpack-merge';
 import common from './webpack.common';
 
-const dev: Configuration = merge(common, {
+const dev: DevServerConfiguration = merge(common, {
 	mode    : 'development',
 	devtool : 'eval-source-map',
 	output  : {
