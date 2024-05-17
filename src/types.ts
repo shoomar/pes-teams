@@ -9,7 +9,7 @@ export enum NameFormat {
 export type NamingConventions = {[key in NameFormat]: string};
 
 export enum Status {
-    available = 'available',
+  available = 'available',
 	blue = 'blue',
 	red = 'red',
 	defeated = 'defeated',

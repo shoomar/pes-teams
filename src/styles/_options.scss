@@ -1,4 +1,4 @@
-@use 'base';
+@use "base";
 
 #options {
 	background-color: map-get($map: base.$colours, $key: "options-bg");
@@ -14,6 +14,14 @@
 	label {
 		display: block;
 		margin: 0.5em;
+	}
+}
+
+.mid-session {
+	font-size: 1.8em;
+	input[type="checkbox"] {
+		width: 1.8em;
+		height: 1.8em;
 	}
 }
 
