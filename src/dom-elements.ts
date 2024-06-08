@@ -30,6 +30,7 @@ export const backGuestBtn = document.getElementById('back-guest-btn') as HTMLBut
 // options
 export const optionsDiv = document.getElementById('options') as HTMLDivElement;
 export const nameFormatInputs = document.getElementsByName('name-format') as NodeListOf<HTMLInputElement>;
+export const midSessionCheckbox = document.getElementById('mid-session') as HTMLInputElement;
 export const minSelect = document.getElementById('min-select') as HTMLSelectElement;
 export const minSelectOpt = minSelect.querySelectorAll('option');
 export const maxSelect = document.getElementById('max-select') as HTMLSelectElement;
