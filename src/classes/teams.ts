@@ -6,6 +6,7 @@ export class Teams {
 
 	private inSessionStoragePlayerPool = 'playerPool';
 	private inSessionStorageTeamSize = 'teamSize';
+	private inSessionStorageMidSession = 'midSession';
 	private inLocalStorageNameFormat = 'nameFormat';
 
 	#nameFormat: NameFormat;
@@ -15,6 +16,8 @@ export class Teams {
 	#teamSize: number;
 	blueLastRoster: number[];
 	redLastRoster: number[];
+
+	#midSession: boolean;
 
 	constructor(
 		private playerList: ConstructorParameters<typeof Player>[],
@@ -56,12 +59,19 @@ export class Teams {
 			this.#teamSize = this.availablePool.length > 8 ? 8 : this.availablePool.length;
 		}
 
+		const fromSessionMidSession = sessionStorage.getItem(this.inSessionStorageMidSession);
+		if (fromSessionMidSession) {
+			this.#midSession = JSON.parse(fromSessionMidSession) as boolean;
+		}
+		else this.#midSession = false;
+
 		this.blueLastRoster = [];
 		this.redLastRoster = [];
 
 		this.setNumberBtnList();
 		this.renderPlayers();
 		this.renderAvailable();
+
 	}
 
 
@@ -82,7 +92,6 @@ export class Teams {
 		return this.#nameFormat;
 	}
 
-
 	set nameFormat(format: NameFormat) {
 		this.#nameFormat = format;
 		this.sortPool();
@@ -90,6 +99,22 @@ export class Teams {
 		this.renderPlayers();
 		this.renderAvailable();
 		localStorage.setItem(this.inLocalStorageNameFormat, this.#nameFormat);
+	}
+
+
+	get midSession(): boolean {
+		return this.#midSession;
+	}
+
+	set midSession(checked: HTMLInputElement['checked']) {
+		if (checked) {
+			this.#midSession = true;
+		}
+		else {
+			this.#midSession = false;
+		}
+		sessionStorage.setItem(this.inSessionStorageMidSession, JSON.stringify(this.#midSession));
+		this.renderAvailable();
 	}
 
 
@@ -209,10 +234,12 @@ export class Teams {
 
 			switch (player.status) {
 				case Status.blue:
+					if (this.#midSession) availableDiv.classList.add('midSession');
 					availableDiv.classList.add(player.status);
 					this.positionInTeamCssClass(idx, player.status, availableDiv);
 					break;
 				case Status.red:
+					if (this.#midSession) availableDiv.classList.add('midSession');
 					availableDiv.classList.add(player.status);
 					this.positionInTeamCssClass(idx, player.status, availableDiv);
 					break;

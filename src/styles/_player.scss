@@ -1,5 +1,5 @@
-@use 'sass:color';
-@use 'base';
+@use "sass:color";
+@use "base";
 
 .player {
 	background: map-get($map: base.$player-clr, $key: "background");
@@ -63,4 +63,9 @@
 	border-top-right-radius: 0;
 	border-top: 0;
 	margin-top: 0;
+}
+
+.midSession {
+	border-width: 5px;
+	border-color: color.scale(map-get($map: base.$colours, $key: "star-btn-bg"), $lightness: -16%);
 }

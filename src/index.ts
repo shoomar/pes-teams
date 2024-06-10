@@ -29,7 +29,6 @@ const teams = new Teams(
 
 const stars = new Stars(starsDiv);
 
-
 // main
 numberButtonList.forEach((btn) => {
 	btn.addEventListener('click', (e) => {
@@ -89,9 +88,11 @@ nameFormatInputs.forEach((input) => {
 	input.addEventListener('change', () => teams.nameFormat =  input.value as NameFormat);
 });
 
+midSessionCheckbox.checked = teams.midSession;
+
 midSessionCheckbox.addEventListener('change', (e) => {
 	const check = e.target as HTMLInputElement;
-	console.log(check.checked);
+	teams.midSession = check.checked;
 });
 
 minSelect.addEventListener('change', (e) => {
