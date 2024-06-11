@@ -24,7 +24,7 @@ if (
 
 // init
 const teams = new Teams(
-	pesCrew, locale, availablePlayersDiv, numberButtonList, allPlayersDiv
+	pesCrew, locale, availablePlayersDiv, numberButtonList, allPlayersDiv, midSessionCheckbox
 );
 
 const stars = new Stars(starsDiv);

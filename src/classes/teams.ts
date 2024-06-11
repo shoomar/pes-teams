@@ -14,8 +14,8 @@ export class Teams {
 	private availablePool: Player[];
 
 	#teamSize: number;
-	blueLastRoster: number[];
-	redLastRoster: number[];
+	private blueLastRoster: number[];
+	private redLastRoster: number[];
 
 	#midSession: boolean;
 
@@ -24,7 +24,8 @@ export class Teams {
 		private language: string,
 		private availablesElement: HTMLDivElement,
 		private numberButtonsList: NodeListOf<HTMLButtonElement>,
-		private allElement: HTMLDivElement
+		private allElement: HTMLDivElement,
+		private midSessionCheckbox: HTMLInputElement
 	) {
 		const fromStorage = localStorage.getItem(this.inLocalStorageNameFormat);
 		if (fromStorage) {
@@ -114,41 +115,91 @@ export class Teams {
 			this.#midSession = false;
 		}
 		sessionStorage.setItem(this.inSessionStorageMidSession, JSON.stringify(this.#midSession));
+		this.midSessionCheckbox.checked = this.#midSession;
 		this.renderAvailable();
 	}
 
 
 	roll(): void {
 		if (this.availablePool.length < 3) return;
-		this.availablePool.forEach((player) => {
-			if (player.status === Status.defeated) {
-				player.roll = Math.random() + 2;
-			}
-			else if (player.status === Status.red || player.status === Status.blue) {
-				player.roll = Math.random() + 1;
-			}
-			else player.roll = Math.random();
-		});
-		this.availablePool.sort((a, b) => a.roll - b.roll);
 
-		for (let i = 0; i < this.#teamSize; i++) {
-			const player = this.availablePool[i];
-			player.roll = Math.random();
+		if (this.#midSession) {
+			this.setRoster(); // if accidental page reload
+
+			if (
+				this.blueLastRoster.length + this.redLastRoster.length >= this.#teamSize
+			) return;
+
+			const toAdd = this.availablePool.filter(
+				(p) => p.status === Status.available || p.status === Status.defeated
+			);
+			if (toAdd.length === 0) {
+				this.midSession = false;
+				this.roll();
+			}
+
+			toAdd.forEach((player) => {
+				player.roll = Math.random() + 3;
+			});
+			toAdd.sort((a, b) => a.roll - b.roll);
+
+			while (
+				this.blueLastRoster.length + this.redLastRoster.length < this.#teamSize &&
+				toAdd.length > 0
+			) {
+				const newPlayer = toAdd.shift() as Player;
+				if (this.redLastRoster.length < this.blueLastRoster.length) {
+					newPlayer.status = Status.red;
+					this.redLastRoster.push(newPlayer.idx);
+				}
+				else if (this.redLastRoster.length > this.blueLastRoster.length) {
+					newPlayer.status = Status.blue;
+					this.blueLastRoster.push(newPlayer.idx);
+				}
+				else {
+					const choice = [ Status.blue, Status.red ][Math.round(Math.random())];
+					newPlayer.status = choice;
+					if (choice === Status.blue) {
+						this.blueLastRoster.push(newPlayer.idx);
+					}
+					else {
+						this.redLastRoster.push(newPlayer.idx);
+					}
+				}
+			}
 		}
-		this.availablePool.sort((a, b) => a.roll - b.roll);
+		else {
+			this.availablePool.forEach((player) => {
+				if (player.status === Status.defeated) {
+					player.roll = Math.random() + 2;
+				}
+				else if (player.status === Status.red || player.status === Status.blue) {
+					player.roll = Math.random() + 1;
+				}
+				else player.roll = Math.random();
+			});
+			this.availablePool.sort((a, b) => a.roll - b.roll);
 
-		this.availablePool.forEach((player, idx) => {
-			if (idx < Math.ceil(this.#teamSize / 2)) {
-				player.status = Status.blue;
+			for (let i = 0; i < this.#teamSize; i++) {
+				const player = this.availablePool[i];
+				player.roll = Math.random();
 			}
-			else if (idx < this.#teamSize) {
-				player.status = Status.red;
-			}
-			else player.status = Status.available;
-		});
+			this.availablePool.sort((a, b) => a.roll - b.roll);
 
-		if (!this.checkRoster()) this.roll();
+			this.availablePool.forEach((player, idx) => {
+				if (idx < Math.ceil(this.#teamSize / 2)) {
+					player.status = Status.blue;
+				}
+				else if (idx < this.#teamSize) {
+					player.status = Status.red;
+				}
+				else player.status = Status.available;
+			});
+			if (!this.checkRoster()) this.roll();
+		}
+
 		this.setRoster();
+		this.midSession = false;
 		this.renderAvailable();
 		this.savePool();
 	}
@@ -222,7 +273,15 @@ export class Teams {
 			this.availablesElement.lastChild.remove();
 		}
 
-		this.availablePool.sort((a, b) => a.roll - b.roll);
+		this.availablePool.sort((a, b) => {
+			if (a.status === Status.blue && b.status === Status.red) return -1;
+			else if (a.status === Status.red && b.status === Status.blue) return 1;
+			else if (a.status === Status.blue && b.status === Status.defeated) return -1;
+			else if (a.status === Status.defeated && b.status === Status.blue) return 1;
+			else if (a.status === Status.red && b.status === Status.defeated) return 1;
+			else if (a.status === Status.defeated && b.status === Status.red) return -1;
+			else return a.roll - b.roll;
+		});
 
 		this.availablePool.forEach((player, idx) => {
 			const availableDiv = document.createElement('div');
@@ -251,63 +310,64 @@ export class Teams {
 					break;
 			}
 
-			let clickTimer: number | null = null;
-			availableDiv.addEventListener('click', (e) => {
-				const target = e.target as HTMLDivElement;
-				if (clickTimer === null) {
-					clickTimer = window.setTimeout(() => {
-						const status = this.pool[parseInt(target.id)].status;
+			if (!this.#midSession) {
+				let clickTimer: number | null = null;
+				availableDiv.addEventListener('click', (e) => {
+					const target = e.target as HTMLDivElement;
+					if (clickTimer === null) {
+						clickTimer = window.setTimeout(() => {
+							const status = this.pool[parseInt(target.id)].status;
 
-						if (status === Status.blue || status === Status.red) {
-							if (
-								this.availablePool.some((player) => player.status === Status.defeated)
-							) {
-								return;
+							if (status === Status.blue || status === Status.red) {
+								if (
+									this.availablePool.some((player) => player.status === Status.defeated)
+								) {
+									return;
+								}
+
+								this.availablePool.forEach((player) => {
+									if (status === player.status) {
+										player.status = Status.defeated;
+									}
+								});
 							}
 
-							this.availablePool.forEach((player) => {
-								if (status === player.status) {
-									player.status = Status.defeated;
-								}
-							});
-						}
+							if (status === Status.defeated) {
+								const blueWon = this.availablePool.some((player) => player.status === Status.blue);
 
-						if (status === Status.defeated) {
-							const blueWon = this.availablePool.some((player) => player.status === Status.blue);
+								this.availablePool.forEach((player) => {
+									if (player.status === status ) {
+										player.status = blueWon ? Status.red : Status.blue;
+									}
+								});
+							}
 
-							this.availablePool.forEach((player) => {
-								if (player.status === status ) {
-									player.status = blueWon ? Status.red : Status.blue;
-								}
-							});
-						}
+							this.renderAvailable();
+							this.savePool();
 
+						}, 250);
+					}
+					// dblclick
+					else {
+						clearTimeout(clickTimer);
+						clickTimer = null;
+						const player = this.pool[parseInt(target.id)];
+						player.status = Status.off;
+						player.roll = 42;
+						this.setAvailable();
+						this.setTeamSize();
 						this.renderAvailable();
+						this.allElement.childNodes.forEach((node) => {
+							const nodeElement = node as HTMLDivElement;
+							if (nodeElement.id === target.id) {
+								nodeElement.classList.remove(Status.off);
+							}
+						});
+						this.setNumberBtnList();
 						this.savePool();
-
-					}, 250);
-				}
-				// dblclick
-				else {
-					clearTimeout(clickTimer);
-					clickTimer = null;
-					const player = this.pool[parseInt(target.id)];
-					player.status = Status.off;
-					player.roll = 42;
-					this.setAvailable();
-					this.setTeamSize();
-					this.renderAvailable();
-					this.allElement.childNodes.forEach((node) => {
-						const nodeElement = node as HTMLDivElement;
-						if (nodeElement.id === target.id) {
-							nodeElement.classList.remove(Status.off);
-						}
-					});
-					this.setNumberBtnList();
-					this.savePool();
-				}
-
-			});
+					}
+				});
+			}
 
 			this.availablesElement.appendChild(availableDiv);
 		});
