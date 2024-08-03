@@ -38,9 +38,11 @@ body {
 }
 
 @mixin addScroll($colour: color.adjust(map.get($colours, "background"), $saturation: 10%)) {
-    overflow: auto;
-    scrollbar-color: $colour;
-    scrollbar-width: thin;
+    &{
+        overflow: auto;
+        scrollbar-color: $colour;
+        scrollbar-width: thin;
+    }
     &::-webkit-scrollbar {
         width: 0.15rem;
     }

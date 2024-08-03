@@ -220,10 +220,10 @@ export class Teams {
 		const red: number[] = [];
 		this.availablePool.forEach(({ status, idx }) => {
 			switch (status) {
-				case 'blue':
+				case Status.blue:
 					blue.push(idx);
 					break;
-				case 'red':
+				case Status.red:
 					red.push(idx);
 					break;
 				default:
@@ -442,10 +442,10 @@ export class Teams {
 		this.redLastRoster = [];
 		this.availablePool.forEach(({ status, idx }) => {
 			switch (status) {
-				case 'blue':
+				case Status.blue:
 					this.blueLastRoster.push(idx);
 					break;
-				case 'red':
+				case Status.red:
 					this.redLastRoster.push(idx);
 					break;
 				default:
