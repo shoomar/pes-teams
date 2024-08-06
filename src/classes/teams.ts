@@ -1,5 +1,5 @@
 import { NameFormat, Status } from '../types';
-import { Player } from './player';
+import { Player, Render } from './index';
 
 
 export class Teams {
@@ -8,28 +8,26 @@ export class Teams {
 	private inSessionStorageTeamSize = 'teamSize';
 	private inSessionStorageMidSession = 'midSession';
 	private inLocalStorageNameFormat = 'nameFormat';
+	private inLocalStorageProtectLosers = 'protectLosers';
 
 	#nameFormat: NameFormat;
-	private pool: Player[] = [];
-	private availablePool: Player[];
-
-	#teamSize: number;
+	readonly pool: Player[] = [];
+	availablePool: Player[];
+	private blue: Player[];
+	private red: Player[];
 	private blueLastRoster: number[];
 	private redLastRoster: number[];
-
+	#teamSize: number;
 	#midSession: boolean;
+	#protectLosers: boolean;
 
 	constructor(
 		private playerList: ConstructorParameters<typeof Player>[],
-		private language: string,
-		private availablesElement: HTMLDivElement,
-		private numberButtonsList: HTMLCollectionOf<HTMLButtonElement>,
-		private allElement: HTMLDivElement,
-		private midSessionCheckbox: HTMLInputElement
+		private language: string
 	) {
-		const fromStorage = localStorage.getItem(this.inLocalStorageNameFormat);
-		if (fromStorage) {
-			this.#nameFormat = fromStorage as NameFormat;
+		const fromStorageNameFormat = localStorage.getItem(this.inLocalStorageNameFormat);
+		if (fromStorageNameFormat) {
+			this.#nameFormat = fromStorageNameFormat as NameFormat;
 		}
 		else {
 			this.#nameFormat = NameFormat.fullName;
@@ -43,10 +41,10 @@ export class Teams {
 			this.playerList.forEach((member) => {
 				const player = new Player(...member);
 				this.pool.push(player);
-				this.pool.sort((a, b) => a[this.#nameFormat].localeCompare(b[this.#nameFormat], this.language));
-				this.pool.forEach((player, idx) => {
-					player.idx = idx;
-				});
+			});
+			this.pool.sort((a, b) => a[this.#nameFormat].localeCompare(b[this.#nameFormat], this.language));
+			this.pool.forEach((player, idx) => {
+				player.idx = idx;
 			});
 		}
 
@@ -66,13 +64,20 @@ export class Teams {
 		}
 		else this.#midSession = false;
 
+		const fromStorageProtectLosers = localStorage.getItem(this.inLocalStorageProtectLosers);
+		if (fromStorageProtectLosers) {
+			this.#protectLosers = JSON.parse(fromStorageProtectLosers) as boolean;
+		}
+		else this.#protectLosers = true;
+
+		this.blue = [];
+		this.red = [];
 		this.blueLastRoster = [];
 		this.redLastRoster = [];
 
-		this.setNumberBtnList();
-		this.renderPlayers();
-		this.renderAvailable();
-
+		Render.numberButtonList(this);
+		Render.allPlayersDiv(this);
+		Render.availablePlayersDiv(this);
 	}
 
 
@@ -83,9 +88,9 @@ export class Teams {
 		this.sortPool();
 		this.setAvailable();
 		this.setTeamSize();
-		this.renderPlayers();
-		this.renderAvailable();
-		this.setNumberBtnList();
+		Render.allPlayersDiv(this);
+		Render.availablePlayersDiv(this);
+		Render.numberButtonList(this);
 	}
 
 
@@ -97,8 +102,8 @@ export class Teams {
 		this.#nameFormat = format;
 		this.sortPool();
 		this.setAvailable();
-		this.renderPlayers();
-		this.renderAvailable();
+		Render.allPlayersDiv(this);
+		Render.availablePlayersDiv(this);
 		localStorage.setItem(this.inLocalStorageNameFormat, this.#nameFormat);
 	}
 
@@ -115,8 +120,23 @@ export class Teams {
 			this.#midSession = false;
 		}
 		sessionStorage.setItem(this.inSessionStorageMidSession, JSON.stringify(this.#midSession));
-		this.midSessionCheckbox.checked = this.#midSession;
-		this.renderAvailable();
+		Render.midSessionCheckbox(this.#midSession);
+		Render.availablePlayersDiv(this);
+	}
+
+	get protectLosers(): boolean {
+		return this.#protectLosers;
+	}
+
+	set protectLosers(checked: HTMLInputElement['checked']) {
+		if (checked) {
+			this.#protectLosers = true;
+		}
+		else {
+			this.#protectLosers = false;
+		}
+		localStorage.setItem(this.inLocalStorageProtectLosers, JSON.stringify(this.#protectLosers));
+		Render.protectLosersCheckbox(this.#protectLosers);
 	}
 
 
@@ -200,10 +220,13 @@ export class Teams {
 
 		this.setRoster();
 		this.midSession = false;
-		this.renderAvailable();
+		Render.availablePlayersDiv(this);
 		this.savePool();
 	}
 
+	get teamSize(): number {
+		return this.#teamSize;
+	}
 
 	set teamSize(x: number) {
 		if (x > 8 || x < 3) {
@@ -211,7 +234,7 @@ export class Teams {
 		}
 		this.#teamSize = x;
 		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
-		this.setNumberBtnList();
+		Render.numberButtonList(this);
 	}
 
 
@@ -243,7 +266,7 @@ export class Teams {
 	}
 
 
-	private positionInTeamCssClass(idx: number, status: Status, element: HTMLDivElement ) {
+	positionInTeamCssClass(idx: number, status: Status, element: HTMLDivElement ) {
 		let first: number | null = null;
 		let last: number | null = null;
 
@@ -268,172 +291,13 @@ export class Teams {
 	}
 
 
-	private renderAvailable(): void {
-		while (this.availablesElement.lastChild) {
-			this.availablesElement.lastChild.remove();
-		}
-
-		this.availablePool.sort((a, b) => {
-			if (a.status === Status.blue && b.status === Status.red) return -1;
-			else if (a.status === Status.red && b.status === Status.blue) return 1;
-			else if (a.status === Status.blue && b.status === Status.defeated) return -1;
-			else if (a.status === Status.defeated && b.status === Status.blue) return 1;
-			else if (a.status === Status.red && b.status === Status.defeated) return 1;
-			else if (a.status === Status.defeated && b.status === Status.red) return -1;
-			else return a.rollValue - b.rollValue;
-		});
-
-		this.availablePool.forEach((player, idx) => {
-			const availableDiv = document.createElement('div');
-
-			availableDiv.id = player.idx.toString();
-			availableDiv.classList.add('player');
-			availableDiv.classList.add('available');
-			availableDiv.innerText = player[this.#nameFormat];
-
-			switch (player.status) {
-				case Status.blue:
-					if (this.#midSession) availableDiv.classList.add('midSession');
-					availableDiv.classList.add(player.status);
-					this.positionInTeamCssClass(idx, player.status, availableDiv);
-					break;
-				case Status.red:
-					if (this.#midSession) availableDiv.classList.add('midSession');
-					availableDiv.classList.add(player.status);
-					this.positionInTeamCssClass(idx, player.status, availableDiv);
-					break;
-				case Status.defeated:
-					availableDiv.classList.add(player.status);
-					this.positionInTeamCssClass(idx, player.status, availableDiv);
-					break;
-				default:
-					break;
-			}
-
-			if (!this.#midSession) {
-				let clickTimer: number | null = null;
-				availableDiv.addEventListener('click', (e) => {
-					const target = e.target as HTMLDivElement;
-					if (clickTimer === null) {
-						clickTimer = window.setTimeout(() => {
-							const status = this.pool[parseInt(target.id)].status;
-
-							if (status === Status.blue || status === Status.red) {
-								if (
-									this.availablePool.some((player) => player.status === Status.defeated)
-								) {
-									return;
-								}
-
-								this.availablePool.forEach((player) => {
-									if (status === player.status) {
-										player.status = Status.defeated;
-									}
-								});
-							}
-
-							if (status === Status.defeated) {
-								const blueWon = this.availablePool.some((player) => player.status === Status.blue);
-
-								this.availablePool.forEach((player) => {
-									if (player.status === status ) {
-										player.status = blueWon ? Status.red : Status.blue;
-									}
-								});
-							}
-
-							this.renderAvailable();
-							this.savePool();
-
-						}, 250);
-					}
-					// dblclick
-					else {
-						clearTimeout(clickTimer);
-						clickTimer = null;
-						const player = this.pool[parseInt(target.id)];
-						player.status = Status.off;
-						player.roll(42);
-						this.setAvailable();
-						this.setTeamSize();
-						this.renderAvailable();
-						this.allElement.childNodes.forEach((node) => {
-							const nodeElement = node as HTMLDivElement;
-							if (nodeElement.id === target.id) {
-								nodeElement.classList.remove(Status.off);
-							}
-						});
-						this.setNumberBtnList();
-						this.savePool();
-					}
-				});
-			}
-
-			this.availablesElement.appendChild(availableDiv);
-		});
-	}
-
-
-	private renderPlayers(): void {
-		while (this.allElement.lastChild) {
-			this.allElement.lastChild.remove();
-		}
-
-		this.pool.forEach((player) => {
-			const playerDiv = document.createElement('div');
-
-			playerDiv.id = player.idx.toString();
-			playerDiv.classList.add('player');
-			playerDiv.innerText = player[this.#nameFormat];
-
-			playerDiv.addEventListener('click', (e) => {
-				const target = e.target as HTMLDivElement;
-				target.classList.add(Status.off);
-				this.pool[parseInt(target.id)].status = Status.available;
-				this.pool[parseInt(target.id)].roll(42);
-				this.setAvailable();
-				this.setTeamSize();
-				this.renderAvailable();
-				this.setNumberBtnList();
-				this.savePool();
-			});
-
-			switch (player.status) {
-				case Status.off:
-					playerDiv.classList.remove(Status.off);
-					break;
-				default:
-					playerDiv.classList.add(Status.off);
-					break;
-			}
-
-			this.allElement.appendChild(playerDiv);
-		});
-	}
-
-
-	private savePool(): void {
+	savePool(): void {
 		sessionStorage.setItem(this.inSessionStoragePlayerPool, JSON.stringify(this.pool));
 	}
 
 
-	private setAvailable(): void {
+	setAvailable(): void {
 		this.availablePool = this.pool.filter((player) => player.status !== Status.off);
-	}
-
-
-	private setNumberBtnList(): void {
-		for (const btn of this.numberButtonsList) {
-			btn.classList.remove('selected-number');
-			btn.disabled = true;
-
-			if (parseInt(btn.value) <= this.availablePool.length) {
-				btn.disabled = false;
-				if (parseInt(btn.value) === this.#teamSize) {
-					btn.classList.add('selected-number');
-				}
-			}
-		}
 	}
 
 
@@ -455,7 +319,7 @@ export class Teams {
 	}
 
 
-	private setTeamSize() {
+	setTeamSize() {
 		this.#teamSize = this.availablePool.length > 8 ? 8 : this.availablePool.length;
 		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
 	}

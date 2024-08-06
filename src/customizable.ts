@@ -1,7 +1,7 @@
 import { Player } from './classes';
 
 export const locale = 'sr';
-export const pesCrew: ConstructorParameters<typeof Player>[] = [
+export const playerList: ConstructorParameters<typeof Player>[] = [
 	[
 		'Aca',
 		'Todorović',

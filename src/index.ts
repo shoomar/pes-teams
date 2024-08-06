@@ -1,7 +1,7 @@
 import './styles/index.scss';
 import { Teams, Stars, Render } from './classes';
-import { locale, pesCrew } from './customizable';
-import {  allPlayersDiv, availablePlayersDiv,  midSessionCheckbox,  numberButtonList, starsDiv, viewport } from './dom-elements';
+import { locale, playerList } from './customizable';
+import {  starsDiv, viewport } from './dom-elements';
 
 // prevent soft keyboard from making problems with screen height
 if (
@@ -22,9 +22,7 @@ if (
 }
 
 // init
-const teams = new Teams(
-	pesCrew, locale, availablePlayersDiv, numberButtonList, allPlayersDiv, midSessionCheckbox
-);
+const teams = new Teams(playerList, locale);
 
 const stars = new Stars(starsDiv);
 

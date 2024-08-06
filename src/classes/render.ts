@@ -1,6 +1,6 @@
-import { Teams, Stars } from './index';
+import { Teams, Stars, Player } from './index';
 import * as dom from '../dom-elements';
-import { NameFormat } from '../types';
+import { NameFormat, Status } from '../types';
 
 export class Render {
 	constructor(teams: Teams, stars: Stars) {
@@ -63,8 +63,13 @@ export class Render {
 			input.addEventListener('change', () => teams.nameFormat =  input.value as NameFormat);
 		});
 
-		dom.midSessionCheckbox.checked = teams.midSession;
+		dom.protectLosersCheckbox.checked = teams.protectLosers;
+		dom.protectLosersCheckbox.addEventListener('change', (e) => {
+			const check = e.target as HTMLInputElement;
+			teams.protectLosers = check.checked;
+		});
 
+		dom.midSessionCheckbox.checked = teams.midSession;
 		dom.midSessionCheckbox.addEventListener('change', (e) => {
 			const check = e.target as HTMLInputElement;
 			teams.midSession = check.checked;
@@ -109,5 +114,157 @@ export class Render {
 		dom.backOptBtn.addEventListener('click', () => {
 			dom.optionsDiv.classList.remove('open');
 		});
+	}
+
+
+	static allPlayersDiv(teams: Teams) {
+		while (dom.allPlayersDiv.lastChild) {
+			dom.allPlayersDiv.lastChild.remove();
+		}
+		teams.pool.forEach((player: Player) => {
+			const playerDiv = document.createElement('div');
+			playerDiv.id = player.idx.toString();
+			playerDiv.classList.add('player');
+			playerDiv.innerText = player[teams.nameFormat];
+			playerDiv.addEventListener('click', (e) => {
+				const target = e.target as HTMLDivElement;
+				target.classList.add(Status.off);
+				teams.pool[parseInt(target.id)].status = Status.available;
+				teams.pool[parseInt(target.id)].roll(42);
+				teams.setAvailable();
+				teams.setTeamSize();
+				this.availablePlayersDiv(teams);
+				this.numberButtonList(teams);
+				teams.savePool();
+			});
+			switch (player.status) {
+				case Status.off:
+					playerDiv.classList.remove(Status.off);
+					break;
+				default:
+					playerDiv.classList.add(Status.off);
+					break;
+			}
+			dom.allPlayersDiv.appendChild(playerDiv);
+		});
+	}
+
+
+	static availablePlayersDiv(teams: Teams) {
+		while (dom.availablePlayersDiv.lastChild) {
+			dom.availablePlayersDiv.lastChild.remove();
+		}
+		teams.availablePool.sort((a, b) => {
+			if (a.status === Status.blue && b.status === Status.red) return -1;
+			else if (a.status === Status.red && b.status === Status.blue) return 1;
+			else if (a.status === Status.blue && b.status === Status.defeated) return -1;
+			else if (a.status === Status.defeated && b.status === Status.blue) return 1;
+			else if (a.status === Status.red && b.status === Status.defeated) return 1;
+			else if (a.status === Status.defeated && b.status === Status.red) return -1;
+			else return a.rollValue - b.rollValue;
+		});
+		teams.availablePool.forEach((player, idx) => {
+			const availableDiv = document.createElement('div');
+			availableDiv.id = player.idx.toString();
+			availableDiv.classList.add('player');
+			availableDiv.classList.add('available');
+			availableDiv.innerText = player[teams.nameFormat];
+			switch (player.status) {
+				case Status.blue:
+					if (teams.midSession) availableDiv.classList.add('midSession');
+					availableDiv.classList.add(player.status);
+					teams.positionInTeamCssClass(idx, player.status, availableDiv);
+					break;
+				case Status.red:
+					if (teams.midSession) availableDiv.classList.add('midSession');
+					availableDiv.classList.add(player.status);
+					teams.positionInTeamCssClass(idx, player.status, availableDiv);
+					break;
+				case Status.defeated:
+					availableDiv.classList.add(player.status);
+					teams.positionInTeamCssClass(idx, player.status, availableDiv);
+					break;
+				default:
+					break;
+			}
+			if (!teams.midSession) {
+				let clickTimer: number | null = null;
+				availableDiv.addEventListener('click', (e) => {
+					const target = e.target as HTMLDivElement;
+					if (clickTimer === null) {
+						clickTimer = window.setTimeout(() => {
+							const status = teams.pool[parseInt(target.id)].status;
+							if (status === Status.blue || status === Status.red) {
+								if (
+									teams.availablePool.some((player) => player.status === Status.defeated)
+								) {
+									return;
+								}
+								teams.availablePool.forEach((player) => {
+									if (status === player.status) {
+										player.status = Status.defeated;
+									}
+								});
+							}
+							if (status === Status.defeated) {
+								const blueWon = teams.availablePool.some((player) => player.status === Status.blue);
+								teams.availablePool.forEach((player) => {
+									if (player.status === status ) {
+										player.status = blueWon ? Status.red : Status.blue;
+									}
+								});
+							}
+							this.availablePlayersDiv(teams);
+							teams.savePool();
+						}, 250);
+					}
+					// dblclick
+					else {
+						clearTimeout(clickTimer);
+						clickTimer = null;
+						const player = teams.pool[parseInt(target.id)];
+						player.status = Status.off;
+						player.roll(42);
+						teams.setAvailable();
+						teams.setTeamSize();
+						this.availablePlayersDiv(teams);
+						dom.allPlayersDiv.childNodes.forEach((node) => {
+							const nodeElement = node as HTMLDivElement;
+							if (nodeElement.id === target.id) {
+								nodeElement.classList.remove(Status.off);
+							}
+						});
+						this.numberButtonList(teams);
+						teams.savePool();
+					}
+				});
+			}
+			dom.availablePlayersDiv.appendChild(availableDiv);
+		});
+	}
+
+
+	static midSessionCheckbox(checked: boolean) {
+		dom.midSessionCheckbox.checked = checked;
+	}
+
+
+	static protectLosersCheckbox(checked: boolean) {
+		dom.protectLosersCheckbox.checked = checked;
+	}
+
+
+	static numberButtonList(teams: Teams) {
+		for (const btn of dom.numberButtonList) {
+			btn.classList.remove('selected-number');
+			btn.disabled = true;
+
+			if (parseInt(btn.value) <= teams.availablePool.length) {
+				btn.disabled = false;
+				if (parseInt(btn.value) === teams.teamSize) {
+					btn.classList.add('selected-number');
+				}
+			}
+		}
 	}
 }
