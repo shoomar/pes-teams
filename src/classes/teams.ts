@@ -23,7 +23,7 @@ export class Teams {
 		private playerList: ConstructorParameters<typeof Player>[],
 		private language: string,
 		private availablesElement: HTMLDivElement,
-		private numberButtonsList: NodeListOf<HTMLButtonElement>,
+		private numberButtonsList: HTMLCollectionOf<HTMLButtonElement>,
 		private allElement: HTMLDivElement,
 		private midSessionCheckbox: HTMLInputElement
 	) {
@@ -139,9 +139,9 @@ export class Teams {
 			}
 
 			toAdd.forEach((player) => {
-				player.roll = Math.random() + 3;
+				player.roll(3);
 			});
-			toAdd.sort((a, b) => a.roll - b.roll);
+			toAdd.sort((a, b) => a.rollValue - b.rollValue);
 
 			while (
 				this.blueLastRoster.length + this.redLastRoster.length < this.#teamSize &&
@@ -171,20 +171,20 @@ export class Teams {
 		else {
 			this.availablePool.forEach((player) => {
 				if (player.status === Status.defeated) {
-					player.roll = Math.random() + 2;
+					player.roll(2);
 				}
 				else if (player.status === Status.red || player.status === Status.blue) {
-					player.roll = Math.random() + 1;
+					player.roll(1);
 				}
-				else player.roll = Math.random();
+				else player.roll();
 			});
-			this.availablePool.sort((a, b) => a.roll - b.roll);
+			this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
 
 			for (let i = 0; i < this.#teamSize; i++) {
 				const player = this.availablePool[i];
-				player.roll = Math.random();
+				player.roll();
 			}
-			this.availablePool.sort((a, b) => a.roll - b.roll);
+			this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
 
 			this.availablePool.forEach((player, idx) => {
 				if (idx < Math.ceil(this.#teamSize / 2)) {
@@ -280,7 +280,7 @@ export class Teams {
 			else if (a.status === Status.defeated && b.status === Status.blue) return 1;
 			else if (a.status === Status.red && b.status === Status.defeated) return 1;
 			else if (a.status === Status.defeated && b.status === Status.red) return -1;
-			else return a.roll - b.roll;
+			else return a.rollValue - b.rollValue;
 		});
 
 		this.availablePool.forEach((player, idx) => {
@@ -353,7 +353,7 @@ export class Teams {
 						clickTimer = null;
 						const player = this.pool[parseInt(target.id)];
 						player.status = Status.off;
-						player.roll = 42;
+						player.roll(42);
 						this.setAvailable();
 						this.setTeamSize();
 						this.renderAvailable();
@@ -390,7 +390,7 @@ export class Teams {
 				const target = e.target as HTMLDivElement;
 				target.classList.add(Status.off);
 				this.pool[parseInt(target.id)].status = Status.available;
-				this.pool[parseInt(target.id)].roll = 42;
+				this.pool[parseInt(target.id)].roll(42);
 				this.setAvailable();
 				this.setTeamSize();
 				this.renderAvailable();
@@ -423,7 +423,7 @@ export class Teams {
 
 
 	private setNumberBtnList(): void {
-		this.numberButtonsList.forEach((btn) => {
+		for (const btn of this.numberButtonsList) {
 			btn.classList.remove('selected-number');
 			btn.disabled = true;
 
@@ -433,7 +433,7 @@ export class Teams {
 					btn.classList.add('selected-number');
 				}
 			}
-		});
+		}
 	}
 
 

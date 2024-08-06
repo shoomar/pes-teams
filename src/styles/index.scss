@@ -1,11 +1,11 @@
-@use 'base';
-@use 'player';
-@use 'available';
-@use 'active-players-number';
-@use 'stars';
-@use 'all';
-@use 'guest';
-@use 'options';
+@use "base";
+@use "player";
+@use "available";
+@use "players-in-play-number";
+@use "stars";
+@use "all";
+@use "guest";
+@use "options";
 
 #content {
     margin: 0 auto;

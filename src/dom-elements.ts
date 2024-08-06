@@ -6,7 +6,7 @@ export const availablePlayersDiv = document.getElementById('available-players') 
 
 // team size
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-export const numberButtonList = document.querySelectorAll('.number-btn') as NodeListOf<HTMLButtonElement>;
+export const numberButtonList = document.getElementById('players-in-play-number')?.children as HTMLCollectionOf<HTMLButtonElement>;
 
 // main
 export const optBtn = document.getElementById('opt-btn') as HTMLButtonElement;
@@ -31,6 +31,7 @@ export const backGuestBtn = document.getElementById('back-guest-btn') as HTMLBut
 export const optionsDiv = document.getElementById('options') as HTMLDivElement;
 export const nameFormatInputs = document.getElementsByName('name-format') as NodeListOf<HTMLInputElement>;
 export const midSessionCheckbox = document.getElementById('mid-session') as HTMLInputElement;
+export const protectLosersCheckbox = document.getElementById('protect-losers') as HTMLInputElement;
 export const minSelect = document.getElementById('min-select') as HTMLSelectElement;
 export const minSelectOpt = minSelect.querySelectorAll('option');
 export const maxSelect = document.getElementById('max-select') as HTMLSelectElement;

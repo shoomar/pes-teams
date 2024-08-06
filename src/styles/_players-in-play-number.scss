@@ -1,7 +1,7 @@
-@use 'sass:color';
-@use 'base';
+@use "sass:color";
+@use "base";
 
-#active-players-number {
+#players-in-play-number {
     grid-column: 10/12;
     margin-top: 3rem;
     height: 35vh;

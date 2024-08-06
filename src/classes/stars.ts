@@ -1,8 +1,8 @@
 export class Stars {
 
 	private inSessionStorage = 'stars';
-	private darkColour = '#333';
-	private lightColour = '#ffb000';
+	private backgroundColor = '#333';
+	private foregroundColor = '#ffb000';
 	private lvls = [ 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5 ];
 
 	#min: number;
@@ -31,7 +31,7 @@ export class Stars {
 		);
 
 		for (let i = 0; i < 5; i++) {
-			this.parentElement.innerHTML += this.starCreator('black', i);
+			this.parentElement.innerHTML += this.starCreator('empty', i);
 		}
 	}
 
@@ -111,14 +111,14 @@ export class Stars {
 			content += this.starCreator('half', i + whole);
 		}
 		for (let i = 0; i < 5 - whole - half; i++) {
-			content += this.starCreator('black', i + whole + half);
+			content += this.starCreator('empty', i + whole + half);
 		}
 
 		this.parentElement.innerHTML = content;
 	}
 
 
-	private starCreator(colour: 'black' | 'half' | 'full', id = 0) {
+	private starCreator(fill: 'empty' | 'half' | 'full', id = 0) {
 		const creator = (left: string, right: string) => {
 			return `
 				<svg width="2.1em" height="2em" viewBox="0 0 32 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -135,13 +135,13 @@ export class Stars {
 			`;
 		};
 
-		switch (colour) {
-			case 'black':
-				return creator(this.darkColour, this.darkColour );
+		switch (fill) {
+			case 'empty':
+				return creator(this.backgroundColor, this.backgroundColor );
 			case 'half':
-				return creator(this.lightColour, this.darkColour );
+				return creator(this.foregroundColor, this.backgroundColor );
 			case 'full':
-				return creator(this.lightColour, this.lightColour );
+				return creator(this.foregroundColor, this.foregroundColor );
 		}
 	}
 

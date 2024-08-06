@@ -133,10 +133,11 @@ export default [
 				checksVoidReturn : false,
 			} ],
 
-			'@typescript-eslint/no-non-null-assertion'   : 'warn',
-			'@typescript-eslint/no-unsafe-call'          : 'warn',
-			'@typescript-eslint/no-unsafe-member-access' : 'warn',
-			'@typescript-eslint/no-unused-vars'          : 'error',
+			'@typescript-eslint/no-non-null-assertion'     : 'warn',
+			'@typescript-eslint/no-unsafe-call'            : 'warn',
+			'@typescript-eslint/no-unsafe-enum-comparison' : 'warn',
+			'@typescript-eslint/no-unsafe-member-access'   : 'warn',
+			'@typescript-eslint/no-unused-vars'            : 'error',
 
 			'@typescript-eslint/restrict-template-expressions' : [ 'error', {
 				allowNullish : true,
