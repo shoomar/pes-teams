@@ -173,16 +173,16 @@ export class Render {
 				case Status.blue:
 					if (teams.midSession) availableDiv.classList.add('midSession');
 					availableDiv.classList.add(player.status);
-					teams.positionInTeamCssClass(idx, player.status, availableDiv);
+					this.positionInTeamCssClass(teams.availablePool, idx, player.status, availableDiv);
 					break;
 				case Status.red:
 					if (teams.midSession) availableDiv.classList.add('midSession');
 					availableDiv.classList.add(player.status);
-					teams.positionInTeamCssClass(idx, player.status, availableDiv);
+					this.positionInTeamCssClass(teams.availablePool, idx, player.status, availableDiv);
 					break;
 				case Status.defeated:
 					availableDiv.classList.add(player.status);
-					teams.positionInTeamCssClass(idx, player.status, availableDiv);
+					this.positionInTeamCssClass(teams.availablePool, idx, player.status, availableDiv);
 					break;
 				default:
 					break;
@@ -249,11 +249,6 @@ export class Render {
 	}
 
 
-	static protectLosersCheckbox(checked: boolean) {
-		dom.protectLosersCheckbox.checked = checked;
-	}
-
-
 	static numberButtonList(teams: Teams) {
 		for (const btn of dom.numberButtonList) {
 			btn.classList.remove('selected-number');
@@ -266,5 +261,35 @@ export class Render {
 				}
 			}
 		}
+	}
+
+
+	static	positionInTeamCssClass(availablePool: Player[], idx: number, status: Status, element: HTMLDivElement ) {
+		let first: number | null = null;
+		let last: number | null = null;
+
+		for (let i = 0; i < availablePool.length; i++) {
+			const player = availablePool[i];
+			if (player.status === status) {
+				first = first ?? i;
+				last = i;
+			}
+		}
+
+		if (first === last && first === idx) {
+			return;
+		}
+		else if (idx === first) {
+			element.classList.add('first');
+		}
+		else if (idx === last) {
+			element.classList.add('last');
+		}
+		else element.classList.add('middle');
+	}
+
+
+	static protectLosersCheckbox(checked: boolean) {
+		dom.protectLosersCheckbox.checked = checked;
 	}
 }

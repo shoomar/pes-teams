@@ -191,15 +191,25 @@ export class Teams {
 		else {
 			this.availablePool.forEach((player) => {
 				if (player.status === Status.defeated) {
-					player.roll(2);
+					player.roll(3);
 				}
 				else if (player.status === Status.red || player.status === Status.blue) {
-					player.roll(1);
+					player.roll(2);
 				}
-				else player.roll();
+				else player.roll(1);
 			});
-			this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
-
+			if (this.#protectLosers) {
+				this.availablePool.sort((a, b) => {
+					if (a.status === Status.defeated && b.status === Status.defeated && a.bonus !== b.bonus) {
+						return b.bonus - a.bonus;
+					}
+					else return a.rollValue - b.rollValue;
+				});
+			}
+			else {
+				this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
+			}
+			console.log(this.availablePool);
 			for (let i = 0; i < this.#teamSize; i++) {
 				const player = this.availablePool[i];
 				player.roll();
@@ -213,8 +223,12 @@ export class Teams {
 				else if (idx < this.#teamSize) {
 					player.status = Status.red;
 				}
-				else player.status = Status.available;
+				else {
+					player.status = Status.available;
+					player.bonus++;
+				}
 			});
+			// chek if teams are the same as before
 			if (!this.checkRoster()) this.roll();
 		}
 
@@ -263,31 +277,6 @@ export class Teams {
 			return false;
 		}
 		return true;
-	}
-
-
-	positionInTeamCssClass(idx: number, status: Status, element: HTMLDivElement ) {
-		let first: number | null = null;
-		let last: number | null = null;
-
-		for (let i = 0; i < this.availablePool.length; i++) {
-			const player = this.availablePool[i];
-			if (player.status === status) {
-				first = first ?? i;
-				last = i;
-			}
-		}
-
-		if (first === last && first === idx) {
-			return;
-		}
-		else if (idx === first) {
-			element.classList.add('first');
-		}
-		else if (idx === last) {
-			element.classList.add('last');
-		}
-		else element.classList.add('middle');
 	}
 
 
