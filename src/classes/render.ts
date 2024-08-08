@@ -2,13 +2,19 @@ import { Teams, Stars, Player } from './index';
 import * as dom from '../dom-elements';
 import { NameFormat, Status } from '../types';
 
-export class Render {
-	constructor(teams: Teams, stars: Stars) {
+export class Render extends Teams {
+	constructor(
+		playerList: ConstructorParameters<typeof Player>[],
+		language: string,
+		stars: Stars
+	) {
+		super(playerList, language);
 		// main
 		for (const btn of dom.numberButtonList) {
 			btn.addEventListener('click', (e) => {
 				const target = e.target as HTMLButtonElement;
-				teams.teamSize = parseInt(target.value);
+				this.teamSize = parseInt(target.value);
+				this.numberButtonList();
 			});
 		}
 
@@ -24,7 +30,10 @@ export class Render {
 			dom.allContainerDiv.classList.add('open');
 		});
 
-		dom.splitBtn.addEventListener('click', () => teams.roll());
+		dom.splitBtn.addEventListener('click', () => {
+			this.roll();
+			this.availablePlayersDiv();
+		});
 
 		// all players
 		dom.addGuestDiv.addEventListener('transitionend', () => {
@@ -49,7 +58,10 @@ export class Render {
 			const name = formData.get('name') as string;
 			const surname = formData.get('surname') as string;
 			const nickname = formData.get('nickname') as string;
-			teams.add([ name, surname, nickname ]);
+			this.add([ name, surname, nickname ]);
+			this.allPlayersDiv();
+			this.availablePlayersDiv();
+			this.numberButtonList();
 			dom.addGuestForm.reset();
 			dom.addGuestDiv.classList.remove('open');
 			return false;
@@ -57,22 +69,28 @@ export class Render {
 
 		// options
 		dom.nameFormatInputs.forEach((input) => {
-			if (input.value === teams.nameFormat) {
+			if (input.value === this.nameFormat) {
 				input.checked = true;
 			}
-			input.addEventListener('change', () => teams.nameFormat =  input.value as NameFormat);
+			input.addEventListener('change', () => {
+				this.nameFormat =  input.value as NameFormat;
+				this.allPlayersDiv();
+				this.availablePlayersDiv();
+			});
 		});
 
-		dom.protectLosersCheckbox.checked = teams.protectLosers;
-		dom.protectLosersCheckbox.addEventListener('change', (e) => {
-			const check = e.target as HTMLInputElement;
-			teams.protectLosers = check.checked;
-		});
-
-		dom.midSessionCheckbox.checked = teams.midSession;
+		dom.midSessionCheckbox.checked = this.midSession;
 		dom.midSessionCheckbox.addEventListener('change', (e) => {
 			const check = e.target as HTMLInputElement;
-			teams.midSession = check.checked;
+			this.midSession = check.checked;
+			// this.midSessionCheckbox();
+			this.availablePlayersDiv();
+		});
+
+		dom.protectLosersCheckbox.checked = this.protectLosers;
+		dom.protectLosersCheckbox.addEventListener('change', (e) => {
+			const check = e.target as HTMLInputElement;
+			this.protectLosers = check.checked;
 		});
 
 		dom.minSelect.addEventListener('change', (e) => {
@@ -114,28 +132,33 @@ export class Render {
 		dom.backOptBtn.addEventListener('click', () => {
 			dom.optionsDiv.classList.remove('open');
 		});
+
+		// render from teams
+		this.allPlayersDiv();
+		this.availablePlayersDiv();
+		this.numberButtonList();
 	}
 
 
-	static allPlayersDiv(teams: Teams) {
+	allPlayersDiv() {
 		while (dom.allPlayersDiv.lastChild) {
 			dom.allPlayersDiv.lastChild.remove();
 		}
-		teams.pool.forEach((player: Player) => {
+		this.pool.forEach((player: Player) => {
 			const playerDiv = document.createElement('div');
 			playerDiv.id = player.idx.toString();
 			playerDiv.classList.add('player');
-			playerDiv.innerText = player[teams.nameFormat];
+			playerDiv.innerText = player[this.nameFormat];
 			playerDiv.addEventListener('click', (e) => {
 				const target = e.target as HTMLDivElement;
 				target.classList.add(Status.off);
-				teams.pool[parseInt(target.id)].status = Status.available;
-				teams.pool[parseInt(target.id)].roll(42);
-				teams.setAvailable();
-				teams.setTeamSize();
-				this.availablePlayersDiv(teams);
-				this.numberButtonList(teams);
-				teams.savePool();
+				this.pool[parseInt(target.id)].status = Status.available;
+				this.pool[parseInt(target.id)].roll(42);
+				this.setAvailable();
+				this.setTeamSize();
+				this.availablePlayersDiv();
+				this.numberButtonList();
+				this.savePool();
 			});
 			switch (player.status) {
 				case Status.off:
@@ -150,11 +173,11 @@ export class Render {
 	}
 
 
-	static availablePlayersDiv(teams: Teams) {
+	availablePlayersDiv() {
 		while (dom.availablePlayersDiv.lastChild) {
 			dom.availablePlayersDiv.lastChild.remove();
 		}
-		teams.availablePool.sort((a, b) => {
+		this.availablePool.sort((a, b) => {
 			if (a.status === Status.blue && b.status === Status.red) return -1;
 			else if (a.status === Status.red && b.status === Status.blue) return 1;
 			else if (a.status === Status.blue && b.status === Status.defeated) return -1;
@@ -163,79 +186,79 @@ export class Render {
 			else if (a.status === Status.defeated && b.status === Status.red) return -1;
 			else return a.rollValue - b.rollValue;
 		});
-		teams.availablePool.forEach((player, idx) => {
+		this.availablePool.forEach((player, idx) => {
 			const availableDiv = document.createElement('div');
 			availableDiv.id = player.idx.toString();
 			availableDiv.classList.add('player');
 			availableDiv.classList.add('available');
-			availableDiv.innerText = player[teams.nameFormat];
+			availableDiv.innerText = player[this.nameFormat];
 			switch (player.status) {
 				case Status.blue:
-					if (teams.midSession) availableDiv.classList.add('midSession');
+					if (this.midSession) availableDiv.classList.add('midSession');
 					availableDiv.classList.add(player.status);
-					this.positionInTeamCssClass(teams.availablePool, idx, player.status, availableDiv);
+					this.positionInTeamCssClass(this.availablePool, idx, player.status, availableDiv);
 					break;
 				case Status.red:
-					if (teams.midSession) availableDiv.classList.add('midSession');
+					if (this.midSession) availableDiv.classList.add('midSession');
 					availableDiv.classList.add(player.status);
-					this.positionInTeamCssClass(teams.availablePool, idx, player.status, availableDiv);
+					this.positionInTeamCssClass(this.availablePool, idx, player.status, availableDiv);
 					break;
 				case Status.defeated:
 					availableDiv.classList.add(player.status);
-					this.positionInTeamCssClass(teams.availablePool, idx, player.status, availableDiv);
+					this.positionInTeamCssClass(this.availablePool, idx, player.status, availableDiv);
 					break;
 				default:
 					break;
 			}
-			if (!teams.midSession) {
+			if (!this.midSession) {
 				let clickTimer: number | null = null;
 				availableDiv.addEventListener('click', (e) => {
 					const target = e.target as HTMLDivElement;
 					if (clickTimer === null) {
 						clickTimer = window.setTimeout(() => {
-							const status = teams.pool[parseInt(target.id)].status;
+							const status = this.pool[parseInt(target.id)].status;
 							if (status === Status.blue || status === Status.red) {
 								if (
-									teams.availablePool.some((player) => player.status === Status.defeated)
+									this.availablePool.some((player) => player.status === Status.defeated)
 								) {
 									return;
 								}
-								teams.availablePool.forEach((player) => {
+								this.availablePool.forEach((player) => {
 									if (status === player.status) {
 										player.status = Status.defeated;
 									}
 								});
 							}
 							if (status === Status.defeated) {
-								const blueWon = teams.availablePool.some((player) => player.status === Status.blue);
-								teams.availablePool.forEach((player) => {
+								const blueWon = this.availablePool.some((player) => player.status === Status.blue);
+								this.availablePool.forEach((player) => {
 									if (player.status === status ) {
 										player.status = blueWon ? Status.red : Status.blue;
 									}
 								});
 							}
-							this.availablePlayersDiv(teams);
-							teams.savePool();
+							this.availablePlayersDiv();
+							this.savePool();
 						}, 250);
 					}
 					// dblclick
 					else {
 						clearTimeout(clickTimer);
 						clickTimer = null;
-						const player = teams.pool[parseInt(target.id)];
+						const player = this.pool[parseInt(target.id)];
 						player.status = Status.off;
 						player.roll(42);
-						teams.setAvailable();
-						teams.setTeamSize();
-						this.availablePlayersDiv(teams);
+						this.setAvailable();
+						this.setTeamSize();
+						this.availablePlayersDiv();
 						dom.allPlayersDiv.childNodes.forEach((node) => {
 							const nodeElement = node as HTMLDivElement;
 							if (nodeElement.id === target.id) {
 								nodeElement.classList.remove(Status.off);
 							}
 						});
-						this.numberButtonList(teams);
-						teams.savePool();
+						this.numberButtonList();
+						this.savePool();
 					}
 				});
 			}
@@ -244,19 +267,14 @@ export class Render {
 	}
 
 
-	static midSessionCheckbox(checked: boolean) {
-		dom.midSessionCheckbox.checked = checked;
-	}
-
-
-	static numberButtonList(teams: Teams) {
+	numberButtonList() {
 		for (const btn of dom.numberButtonList) {
 			btn.classList.remove('selected-number');
 			btn.disabled = true;
 
-			if (parseInt(btn.value) <= teams.availablePool.length) {
+			if (parseInt(btn.value) <= this.availablePool.length) {
 				btn.disabled = false;
-				if (parseInt(btn.value) === teams.teamSize) {
+				if (parseInt(btn.value) === this.teamSize) {
 					btn.classList.add('selected-number');
 				}
 			}
@@ -264,7 +282,7 @@ export class Render {
 	}
 
 
-	static	positionInTeamCssClass(availablePool: Player[], idx: number, status: Status, element: HTMLDivElement ) {
+	positionInTeamCssClass(availablePool: Player[], idx: number, status: Status, element: HTMLDivElement ) {
 		let first: number | null = null;
 		let last: number | null = null;
 
@@ -286,10 +304,5 @@ export class Render {
 			element.classList.add('last');
 		}
 		else element.classList.add('middle');
-	}
-
-
-	static protectLosersCheckbox(checked: boolean) {
-		dom.protectLosersCheckbox.checked = checked;
 	}
 }

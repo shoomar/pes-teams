@@ -1,5 +1,5 @@
 import './styles/index.scss';
-import { Teams, Stars, Render } from './classes';
+import { Stars, Render } from './classes';
 import { locale, playerList } from './customizable';
 import {  starsDiv, viewport } from './dom-elements';
 
@@ -22,8 +22,6 @@ if (
 }
 
 // init
-const teams = new Teams(playerList, locale);
-
 const stars = new Stars(starsDiv);
 
-new Render(teams, stars);
+new Render(playerList, locale, stars);

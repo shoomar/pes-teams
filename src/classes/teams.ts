@@ -1,5 +1,5 @@
 import { NameFormat, Status } from '../types';
-import { Player, Render } from './index';
+import { Player } from './index';
 
 
 export class Teams {
@@ -74,10 +74,6 @@ export class Teams {
 		this.red = [];
 		this.blueLastRoster = [];
 		this.redLastRoster = [];
-
-		Render.numberButtonList(this);
-		Render.allPlayersDiv(this);
-		Render.availablePlayersDiv(this);
 	}
 
 
@@ -88,9 +84,6 @@ export class Teams {
 		this.sortPool();
 		this.setAvailable();
 		this.setTeamSize();
-		Render.allPlayersDiv(this);
-		Render.availablePlayersDiv(this);
-		Render.numberButtonList(this);
 	}
 
 
@@ -102,8 +95,6 @@ export class Teams {
 		this.#nameFormat = format;
 		this.sortPool();
 		this.setAvailable();
-		Render.allPlayersDiv(this);
-		Render.availablePlayersDiv(this);
 		localStorage.setItem(this.inLocalStorageNameFormat, this.#nameFormat);
 	}
 
@@ -120,8 +111,6 @@ export class Teams {
 			this.#midSession = false;
 		}
 		sessionStorage.setItem(this.inSessionStorageMidSession, JSON.stringify(this.#midSession));
-		Render.midSessionCheckbox(this.#midSession);
-		Render.availablePlayersDiv(this);
 	}
 
 	get protectLosers(): boolean {
@@ -136,7 +125,6 @@ export class Teams {
 			this.#protectLosers = false;
 		}
 		localStorage.setItem(this.inLocalStorageProtectLosers, JSON.stringify(this.#protectLosers));
-		Render.protectLosersCheckbox(this.#protectLosers);
 	}
 
 
@@ -234,7 +222,6 @@ export class Teams {
 
 		this.setRoster();
 		this.midSession = false;
-		Render.availablePlayersDiv(this);
 		this.savePool();
 	}
 
@@ -248,7 +235,6 @@ export class Teams {
 		}
 		this.#teamSize = x;
 		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
-		Render.numberButtonList(this);
 	}
 
 
