@@ -79,6 +79,7 @@ export class Render extends Teams {
 			});
 		});
 
+		if (this.teamSize < 3) dom.midSessionCheckbox.disabled = true;
 		dom.midSessionCheckbox.checked = this.midSession;
 		dom.midSessionCheckbox.addEventListener('change', (e) => {
 			const check = e.target as HTMLInputElement;
@@ -152,12 +153,13 @@ export class Render extends Teams {
 				const target = e.target as HTMLDivElement;
 				target.classList.add(Status.off);
 				this.pool[parseInt(target.id)].status = Status.available;
-				this.pool[parseInt(target.id)].roll(42);
+				this.pool[parseInt(target.id)].rollValue = 42;
 				this.setAvailable();
 				this.setTeamSize();
 				this.availablePlayersDiv();
 				this.numberButtonList();
 				this.savePool();
+				if (this.teamSize >= 3) dom.midSessionCheckbox.disabled = false;
 			});
 			switch (player.status) {
 				case Status.off:
@@ -246,7 +248,7 @@ export class Render extends Teams {
 						clickTimer = null;
 						const player = this.pool[parseInt(target.id)];
 						player.status = Status.off;
-						player.roll(42);
+						player.rollValue = 42;
 						this.setAvailable();
 						this.setTeamSize();
 						this.availablePlayersDiv();
@@ -258,6 +260,7 @@ export class Render extends Teams {
 						});
 						this.numberButtonList();
 						this.savePool();
+						if (this.teamSize < 3) dom.midSessionCheckbox.disabled = true;
 					}
 				});
 			}

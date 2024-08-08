@@ -7,7 +7,7 @@ export class Player implements NamingConventions {
 	readonly fullName: string;
 	readonly camelCase: string;
 	status: Status = Status.off;
-	#rollValue = 42;
+	rollValue = 42;
 	bonus: number = 0;
 
 	constructor(
@@ -17,14 +17,5 @@ export class Player implements NamingConventions {
 	) {
 		this.fullName = `${name} ${surname}`;
 		this.camelCase = name[0].toLowerCase() + surname;
-	}
-
-	get rollValue(): number {
-		return this.#rollValue;
-	}
-
-
-	roll(plusMinus = 0) {
-		this.#rollValue = Math.random() + plusMinus;
 	}
 }

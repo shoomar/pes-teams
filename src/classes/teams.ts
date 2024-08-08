@@ -152,9 +152,20 @@ export class Teams {
 	roll(): void {
 		if (this.availablePool.length < 3) return;
 
-		if (this.#midSession) {
-			this.setRoster(); // if accidental page reload
+		if (this.blue.length && this.red.length) {
+			this.bluePreviousRoster = [];
+			this.redPreviousRoster = [];
+			for (const e of this.blue) {
+				this.bluePreviousRoster.push(e)
+			}
+			for (const e of this.red) {
+				this.redPreviousRoster.push(e)
+			}
+		}
+		sessionStorage.setItem(this.inSessionStorageBluePreviousRoster, JSON.stringify(this.bluePreviousRoster));
+		sessionStorage.setItem(this.inSessionStorageRedPreviousRoster, JSON.stringify(this.redPreviousRoster));
 
+		if (this.#midSession) {
 			if (
 				this.bluePreviousRoster.length + this.redPreviousRoster.length >= this.#teamSize
 			) return;
@@ -168,7 +179,7 @@ export class Teams {
 			}
 
 			toAdd.forEach((player) => {
-				player.roll(3);
+				player.rollValue = Math.random() + 3;
 			});
 			toAdd.sort((a, b) => a.rollValue - b.rollValue);
 
@@ -200,12 +211,12 @@ export class Teams {
 		else {
 			this.availablePool.forEach((player) => {
 				if (player.status === Status.defeated) {
-					player.roll(3);
+					player.rollValue = Math.random() + 3;
 				}
 				else if (player.status === Status.red || player.status === Status.blue) {
-					player.roll(2);
+					player.rollValue = Math.random() + 2;
 				}
-				else player.roll(1);
+				else player.rollValue = Math.random() + 1;
 			});
 			if (this.#protectLosers) {
 				this.availablePool.sort((a, b) => {
@@ -221,7 +232,7 @@ export class Teams {
 			console.log(this.availablePool);
 			for (let i = 0; i < this.#teamSize; i++) {
 				const player = this.availablePool[i];
-				player.roll();
+				player.rollValue = Math.random();
 			}
 			this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
 
@@ -237,13 +248,46 @@ export class Teams {
 					player.bonus++;
 				}
 			});
-			// chek if teams are the same as before
-			if (!this.checkRoster()) this.roll();
+
+			while (!this.checkRoster()) {
+				console.log('isti',
+					this.bluePreviousRoster,
+					this.redPreviousRoster
+				);
+				for (let i = 0; i < this.#teamSize; i++) {
+					const player = this.availablePool[i];
+					player.rollValue = Math.random();
+				}
+				this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
+				this.availablePool.forEach((player, idx) => {
+					if (idx < Math.ceil(this.#teamSize / 2)) {
+						player.status = Status.blue;
+					}
+					else if (idx < this.#teamSize) {
+					player.status = Status.red;
+					}
+				});
+			}
 		}
 
-		this.setRoster();
+		this.blue = [];
+		this.red = [];
+		this.availablePool.forEach(({ status, idx }) => {
+			switch (status) {
+				case Status.blue:
+					this.blue.push(idx);
+					break;
+				case Status.red:
+					this.red.push(idx);
+					break;
+				default:
+					break;
+			}
+		});
+
 		this.midSession = false;
 		this.savePool();
+		console.log('kraj ROLA');
 	}
 
 	get teamSize(): number {
@@ -274,12 +318,11 @@ export class Teams {
 					break;
 			}
 		});
-
 		if (
-			blue.every((player) => this.bluePreviousRoster.includes(player))
-			|| blue.every((player) => this.redPreviousRoster.includes(player))
-			|| red.every((player) => this.bluePreviousRoster.includes(player))
-			|| red.every((player) => this.redPreviousRoster.includes(player))
+			blue.every((idx) => this.bluePreviousRoster.includes(idx))
+			|| blue.every((idx) => this.redPreviousRoster.includes(idx))
+			|| red.every((idx) => this.bluePreviousRoster.includes(idx))
+			|| red.every((idx) => this.redPreviousRoster.includes(idx))
 		) {
 			return false;
 		}
@@ -294,24 +337,6 @@ export class Teams {
 
 	setAvailable(): void {
 		this.availablePool = this.pool.filter((player) => player.status !== Status.off);
-	}
-
-
-	private setRoster() {
-		this.bluePreviousRoster = [];
-		this.redPreviousRoster = [];
-		this.availablePool.forEach(({ status, idx }) => {
-			switch (status) {
-				case Status.blue:
-					this.bluePreviousRoster.push(idx);
-					break;
-				case Status.red:
-					this.redPreviousRoster.push(idx);
-					break;
-				default:
-					break;
-			}
-		});
 	}
 
 
