@@ -83,7 +83,6 @@ export class Render extends Teams {
 		dom.midSessionCheckbox.addEventListener('change', (e) => {
 			const check = e.target as HTMLInputElement;
 			this.midSession = check.checked;
-			// this.midSessionCheckbox();
 			this.availablePlayersDiv();
 		});
 
