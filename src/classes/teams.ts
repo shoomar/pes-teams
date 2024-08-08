@@ -7,16 +7,18 @@ export class Teams {
 	private inSessionStoragePlayerPool = 'playerPool';
 	private inSessionStorageTeamSize = 'teamSize';
 	private inSessionStorageMidSession = 'midSession';
+	private inSessionStorageBluePreviousRoster = 'bluePrev';
+	private inSessionStorageRedPreviousRoster = 'redPrev';
 	private inLocalStorageNameFormat = 'nameFormat';
 	private inLocalStorageProtectLosers = 'protectLosers';
 
 	#nameFormat: NameFormat;
 	readonly pool: Player[] = [];
 	availablePool: Player[];
-	private blue: Player[];
-	private red: Player[];
-	private blueLastRoster: number[];
-	private redLastRoster: number[];
+	private blue: number[] = [];
+	private red: number[] = [];
+	private bluePreviousRoster: number[];
+	private redPreviousRoster: number[];
 	#teamSize: number;
 	#midSession: boolean;
 	#protectLosers: boolean;
@@ -47,7 +49,6 @@ export class Teams {
 				player.idx = idx;
 			});
 		}
-
 		this.availablePool = this.pool.filter((player) => player.status !== Status.off);
 
 		const fromSessionTeamSize = sessionStorage.getItem(this.inSessionStorageTeamSize);
@@ -70,20 +71,29 @@ export class Teams {
 		}
 		else this.#protectLosers = true;
 
-		this.blue = [];
-		this.red = [];
-		this.blueLastRoster = [];
-		this.redLastRoster = [];
-	}
+		const fromSessionPrevBlue = sessionStorage.getItem(this.inSessionStorageBluePreviousRoster);
+		if (fromSessionPrevBlue) {
+			this.bluePreviousRoster = JSON.parse(fromSessionPrevBlue) as number[];
+		}
+		else this.bluePreviousRoster = [];
+		const fromSessionPrevRed = sessionStorage.getItem(this.inSessionStorageRedPreviousRoster);
+		if (fromSessionPrevRed) {
+			this.redPreviousRoster = JSON.parse(fromSessionPrevRed) as number[];
+		}
+		else this.redPreviousRoster = [];
 
-
-	add(newPlayer: ConstructorParameters<typeof Player>): void {
-		const player = new Player(...newPlayer);
-		player.status = Status.available;
-		this.pool.push(player);
-		this.sortPool();
-		this.setAvailable();
-		this.setTeamSize();
+		for (const { status, idx } of this.availablePool) {
+			switch (status) {
+				case Status.blue:
+					this.blue.push(idx);
+					break;
+				case Status.red:
+					this.red.push(idx);
+					break;
+				default:
+					break;
+			}
+		}
 	}
 
 
@@ -113,6 +123,7 @@ export class Teams {
 		sessionStorage.setItem(this.inSessionStorageMidSession, JSON.stringify(this.#midSession));
 	}
 
+
 	get protectLosers(): boolean {
 		return this.#protectLosers;
 	}
@@ -127,104 +138,6 @@ export class Teams {
 		localStorage.setItem(this.inLocalStorageProtectLosers, JSON.stringify(this.#protectLosers));
 	}
 
-
-	roll(): void {
-		if (this.availablePool.length < 3) return;
-
-		if (this.#midSession) {
-			this.setRoster(); // if accidental page reload
-
-			if (
-				this.blueLastRoster.length + this.redLastRoster.length >= this.#teamSize
-			) return;
-
-			const toAdd = this.availablePool.filter(
-				(p) => p.status === Status.available || p.status === Status.defeated
-			);
-			if (toAdd.length === 0) {
-				this.midSession = false;
-				this.roll();
-			}
-
-			toAdd.forEach((player) => {
-				player.roll(3);
-			});
-			toAdd.sort((a, b) => a.rollValue - b.rollValue);
-
-			while (
-				this.blueLastRoster.length + this.redLastRoster.length < this.#teamSize &&
-				toAdd.length > 0
-			) {
-				const newPlayer = toAdd.shift() as Player;
-				if (this.redLastRoster.length < this.blueLastRoster.length) {
-					newPlayer.status = Status.red;
-					this.redLastRoster.push(newPlayer.idx);
-				}
-				else if (this.redLastRoster.length > this.blueLastRoster.length) {
-					newPlayer.status = Status.blue;
-					this.blueLastRoster.push(newPlayer.idx);
-				}
-				else {
-					const choice = [ Status.blue, Status.red ][Math.round(Math.random())];
-					newPlayer.status = choice;
-					if (choice === Status.blue) {
-						this.blueLastRoster.push(newPlayer.idx);
-					}
-					else {
-						this.redLastRoster.push(newPlayer.idx);
-					}
-				}
-			}
-		}
-		else {
-			this.availablePool.forEach((player) => {
-				if (player.status === Status.defeated) {
-					player.roll(3);
-				}
-				else if (player.status === Status.red || player.status === Status.blue) {
-					player.roll(2);
-				}
-				else player.roll(1);
-			});
-			if (this.#protectLosers) {
-				this.availablePool.sort((a, b) => {
-					if (a.status === Status.defeated && b.status === Status.defeated && a.bonus !== b.bonus) {
-						return b.bonus - a.bonus;
-					}
-					else return a.rollValue - b.rollValue;
-				});
-			}
-			else {
-				this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
-			}
-			console.log(this.availablePool);
-			for (let i = 0; i < this.#teamSize; i++) {
-				const player = this.availablePool[i];
-				player.roll();
-			}
-			this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
-
-			this.availablePool.forEach((player, idx) => {
-				if (idx < Math.ceil(this.#teamSize / 2)) {
-					player.status = Status.blue;
-				}
-				else if (idx < this.#teamSize) {
-					player.status = Status.red;
-				}
-				else {
-					player.status = Status.available;
-					player.bonus++;
-				}
-			});
-			// chek if teams are the same as before
-			if (!this.checkRoster()) this.roll();
-		}
-
-		this.setRoster();
-		this.midSession = false;
-		this.savePool();
-	}
-
 	get teamSize(): number {
 		return this.#teamSize;
 	}
@@ -235,6 +148,16 @@ export class Teams {
 		}
 		this.#teamSize = x;
 		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
+	}
+
+
+	add(newPlayer: ConstructorParameters<typeof Player>): void {
+		const player = new Player(...newPlayer);
+		player.status = Status.available;
+		this.pool.push(player);
+		this.sortPool();
+		this.setAvailable();
+		this.setTeamSize();
 	}
 
 
@@ -253,16 +176,153 @@ export class Teams {
 					break;
 			}
 		});
-
 		if (
-			blue.every((player) => this.blueLastRoster.includes(player))
-			|| blue.every((player) => this.redLastRoster.includes(player))
-			|| red.every((player) => this.blueLastRoster.includes(player))
-			|| red.every((player) => this.redLastRoster.includes(player))
+			blue.every((idx) => this.bluePreviousRoster.includes(idx))
+			|| blue.every((idx) => this.redPreviousRoster.includes(idx))
+			|| red.every((idx) => this.bluePreviousRoster.includes(idx))
+			|| red.every((idx) => this.redPreviousRoster.includes(idx))
 		) {
 			return false;
 		}
 		return true;
+	}
+
+
+	roll(): void {
+		if (this.availablePool.length < 3) return;
+
+		if (this.blue.length && this.red.length) {
+			this.bluePreviousRoster = [];
+			this.redPreviousRoster = [];
+			for (const e of this.blue) {
+				this.bluePreviousRoster.push(e)
+			}
+			for (const e of this.red) {
+				this.redPreviousRoster.push(e)
+			}
+		}
+		sessionStorage.setItem(this.inSessionStorageBluePreviousRoster, JSON.stringify(this.bluePreviousRoster));
+		sessionStorage.setItem(this.inSessionStorageRedPreviousRoster, JSON.stringify(this.redPreviousRoster));
+
+		if (this.#midSession) {
+			if (
+				this.bluePreviousRoster.length + this.redPreviousRoster.length >= this.#teamSize
+			) return;
+
+			const toAdd = this.availablePool.filter(
+				(p) => p.status === Status.available || p.status === Status.defeated
+			);
+			if (toAdd.length === 0) {
+				this.midSession = false;
+				this.roll();
+			}
+
+			toAdd.forEach((player) => {
+				player.rollValue = Math.random() + 3;
+			});
+			toAdd.sort((a, b) => a.rollValue - b.rollValue);
+
+			while (
+				this.bluePreviousRoster.length + this.redPreviousRoster.length < this.#teamSize &&
+				toAdd.length > 0
+			) {
+				const newPlayer = toAdd.shift() as Player;
+				if (this.redPreviousRoster.length < this.bluePreviousRoster.length) {
+					newPlayer.status = Status.red;
+					this.redPreviousRoster.push(newPlayer.idx);
+				}
+				else if (this.redPreviousRoster.length > this.bluePreviousRoster.length) {
+					newPlayer.status = Status.blue;
+					this.bluePreviousRoster.push(newPlayer.idx);
+				}
+				else {
+					const choice = [ Status.blue, Status.red ][Math.round(Math.random())];
+					newPlayer.status = choice;
+					if (choice === Status.blue) {
+						this.bluePreviousRoster.push(newPlayer.idx);
+					}
+					else {
+						this.redPreviousRoster.push(newPlayer.idx);
+					}
+				}
+			}
+		}
+		else {
+			this.availablePool.forEach((player) => {
+				if (player.status === Status.defeated) {
+					player.rollValue = Math.random() + 3;
+				}
+				else if (player.status === Status.red || player.status === Status.blue) {
+					player.rollValue = Math.random() + 2;
+				}
+				else player.rollValue = Math.random() + 1;
+			});
+			if (this.#protectLosers) {
+				this.availablePool.sort((a, b) => {
+					if (a.status === Status.defeated && b.status === Status.defeated && a.bonus !== b.bonus) {
+						return b.bonus - a.bonus;
+					}
+					else return a.rollValue - b.rollValue;
+				});
+			}
+			else {
+				this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
+			}
+			for (let i = 0; i < this.#teamSize; i++) {
+				const player = this.availablePool[i];
+				player.rollValue = Math.random();
+			}
+			this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
+
+			this.availablePool.forEach((player, idx) => {
+				if (idx < Math.ceil(this.#teamSize / 2)) {
+					player.status = Status.blue;
+				}
+				else if (idx < this.#teamSize) {
+					player.status = Status.red;
+				}
+				else {
+					player.status = Status.available;
+					player.bonus++;
+				}
+			});
+
+			if (this.#teamSize > 3) { // inf loop if 3
+				while (!this.checkRoster()) {
+					for (let i = 0; i < this.#teamSize; i++) {
+						const player = this.availablePool[i];
+						player.rollValue = Math.random();
+					}
+					this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
+					this.availablePool.forEach((player, idx) => {
+						if (idx < Math.ceil(this.#teamSize / 2)) {
+							player.status = Status.blue;
+						}
+						else if (idx < this.#teamSize) {
+						player.status = Status.red;
+						}
+					});
+				}
+			}
+		}
+
+		this.blue = [];
+		this.red = [];
+		this.availablePool.forEach(({ status, idx }) => {
+			switch (status) {
+				case Status.blue:
+					this.blue.push(idx);
+					break;
+				case Status.red:
+					this.red.push(idx);
+					break;
+				default:
+					break;
+			}
+		});
+
+		this.midSession = false;
+		this.savePool();
 	}
 
 
@@ -273,24 +333,6 @@ export class Teams {
 
 	setAvailable(): void {
 		this.availablePool = this.pool.filter((player) => player.status !== Status.off);
-	}
-
-
-	private setRoster() {
-		this.blueLastRoster = [];
-		this.redLastRoster = [];
-		this.availablePool.forEach(({ status, idx }) => {
-			switch (status) {
-				case Status.blue:
-					this.blueLastRoster.push(idx);
-					break;
-				case Status.red:
-					this.redLastRoster.push(idx);
-					break;
-				default:
-					break;
-			}
-		});
 	}
 
 
@@ -307,5 +349,4 @@ export class Teams {
 		});
 		this.savePool();
 	}
-
 }
