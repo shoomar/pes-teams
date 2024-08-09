@@ -268,7 +268,6 @@ export class Teams {
 			else {
 				this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
 			}
-			console.log(this.availablePool);
 			for (let i = 0; i < this.#teamSize; i++) {
 				const player = this.availablePool[i];
 				player.rollValue = Math.random();
@@ -288,24 +287,22 @@ export class Teams {
 				}
 			});
 
-			while (!this.checkRoster()) {
-				console.log('isti',
-					this.bluePreviousRoster,
-					this.redPreviousRoster
-				);
-				for (let i = 0; i < this.#teamSize; i++) {
-					const player = this.availablePool[i];
-					player.rollValue = Math.random();
+			if (this.#teamSize > 3) { // inf loop if 3
+				while (!this.checkRoster()) {
+					for (let i = 0; i < this.#teamSize; i++) {
+						const player = this.availablePool[i];
+						player.rollValue = Math.random();
+					}
+					this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
+					this.availablePool.forEach((player, idx) => {
+						if (idx < Math.ceil(this.#teamSize / 2)) {
+							player.status = Status.blue;
+						}
+						else if (idx < this.#teamSize) {
+						player.status = Status.red;
+						}
+					});
 				}
-				this.availablePool.sort((a, b) => a.rollValue - b.rollValue);
-				this.availablePool.forEach((player, idx) => {
-					if (idx < Math.ceil(this.#teamSize / 2)) {
-						player.status = Status.blue;
-					}
-					else if (idx < this.#teamSize) {
-					player.status = Status.red;
-					}
-				});
 			}
 		}
 
@@ -326,7 +323,6 @@ export class Teams {
 
 		this.midSession = false;
 		this.savePool();
-		console.log('kraj ROLA');
 	}
 
 

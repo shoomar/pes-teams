@@ -34,6 +34,7 @@ export class Render extends Teams {
 		dom.splitBtn.addEventListener('click', () => {
 			this.roll();
 			this.availablePlayersDiv();
+			dom.midSessionCheckbox.checked = this.midSession;
 		});
 
 		// all players
