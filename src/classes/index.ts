@@ -1,6 +1,6 @@
 import { Player } from './player';
-import { Render } from './render';
-import { Stars } from './stars';
 import { Teams } from './teams';
+import { Stars } from './stars';
+import { Render } from './render';
 
 export { Player, Teams, Stars, Render };
