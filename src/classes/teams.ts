@@ -138,6 +138,18 @@ export class Teams {
 		localStorage.setItem(this.inLocalStorageProtectLosers, JSON.stringify(this.#protectLosers));
 	}
 
+	get teamSize(): number {
+		return this.#teamSize;
+	}
+
+	set teamSize(x: number) {
+		if (x > 8 || x < 3) {
+			throw new Error('team size must be between 3 and 8');
+		}
+		this.#teamSize = x;
+		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
+	}
+
 
 	add(newPlayer: ConstructorParameters<typeof Player>): void {
 		const player = new Player(...newPlayer);
@@ -146,6 +158,33 @@ export class Teams {
 		this.sortPool();
 		this.setAvailable();
 		this.setTeamSize();
+	}
+
+
+	private checkRoster(): boolean {
+		const blue: number[] = [];
+		const red: number[] = [];
+		this.availablePool.forEach(({ status, idx }) => {
+			switch (status) {
+				case Status.blue:
+					blue.push(idx);
+					break;
+				case Status.red:
+					red.push(idx);
+					break;
+				default:
+					break;
+			}
+		});
+		if (
+			blue.every((idx) => this.bluePreviousRoster.includes(idx))
+			|| blue.every((idx) => this.redPreviousRoster.includes(idx))
+			|| red.every((idx) => this.bluePreviousRoster.includes(idx))
+			|| red.every((idx) => this.redPreviousRoster.includes(idx))
+		) {
+			return false;
+		}
+		return true;
 	}
 
 
@@ -290,45 +329,6 @@ export class Teams {
 		console.log('kraj ROLA');
 	}
 
-	get teamSize(): number {
-		return this.#teamSize;
-	}
-
-	set teamSize(x: number) {
-		if (x > 8 || x < 3) {
-			throw new Error('team size must be between 3 and 8');
-		}
-		this.#teamSize = x;
-		sessionStorage.setItem(this.inSessionStorageTeamSize, `${this.#teamSize}`);
-	}
-
-
-	private checkRoster(): boolean {
-		const blue: number[] = [];
-		const red: number[] = [];
-		this.availablePool.forEach(({ status, idx }) => {
-			switch (status) {
-				case Status.blue:
-					blue.push(idx);
-					break;
-				case Status.red:
-					red.push(idx);
-					break;
-				default:
-					break;
-			}
-		});
-		if (
-			blue.every((idx) => this.bluePreviousRoster.includes(idx))
-			|| blue.every((idx) => this.redPreviousRoster.includes(idx))
-			|| red.every((idx) => this.bluePreviousRoster.includes(idx))
-			|| red.every((idx) => this.redPreviousRoster.includes(idx))
-		) {
-			return false;
-		}
-		return true;
-	}
-
 
 	savePool(): void {
 		sessionStorage.setItem(this.inSessionStoragePlayerPool, JSON.stringify(this.pool));
@@ -353,5 +353,4 @@ export class Teams {
 		});
 		this.savePool();
 	}
-
 }

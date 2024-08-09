@@ -3,6 +3,7 @@ import * as dom from '../dom-elements';
 import { NameFormat, Status } from '../types';
 
 export class Render extends Teams {
+
 	constructor(
 		playerList: ConstructorParameters<typeof Player>[],
 		language: string,
