@@ -1,27 +1,27 @@
-import { NameFormat, Status } from '../types';
+import { NameFormat, Status, storageNames } from '../types';
 import { Player } from './index';
 
 
 export class Teams {
 
-	private inSessionStoragePlayerPool = 'playerPool';
-	private inSessionStorageTeamSize = 'teamSize';
-	private inSessionStorageMidSession = 'midSession';
-	private inSessionStorageBluePreviousRoster = 'bluePrev';
-	private inSessionStorageRedPreviousRoster = 'redPrev';
-	private inLocalStorageNameFormat = 'nameFormat';
-	private inLocalStorageProtectLosers = 'protectLosers';
+	private inSessionStoragePlayerPool = storageNames.session.playerPool;
+	private inSessionStorageTeamSize  = storageNames.session.teamSize;
+	private inSessionStorageMidSession  = storageNames.session.midSession;
+	private inSessionStorageBluePreviousRoster  = storageNames.session.bluePrev;
+	private inSessionStorageRedPreviousRoster  = storageNames.session.redPrev;
+	private inLocalStorageNameFormat  = storageNames.local.nameFormat;
+	private inLocalStorageProtectLosers  = storageNames.local.protectLosers;
 
-	#nameFormat: NameFormat;
-	readonly pool: Player[] = [];
-	availablePool: Player[];
-	private blue: number[] = [];
-	private red: number[] = [];
-	private bluePreviousRoster: number[];
-	private redPreviousRoster: number[];
-	#teamSize: number;
-	#midSession: boolean;
-	#protectLosers: boolean;
+	#nameFormat                : NameFormat;
+	readonly pool              : Player[] = [];
+	availablePool              : Player[];
+	private blue               : number[] = [];
+	private red                : number[] = [];
+	private bluePreviousRoster : number[];
+	private redPreviousRoster  : number[];
+	#teamSize                  : number;
+	#midSession                : boolean;
+	#protectLosers             : boolean;
 
 	constructor(
 		private playerList: ConstructorParameters<typeof Player>[],
@@ -195,10 +195,10 @@ export class Teams {
 			this.bluePreviousRoster = [];
 			this.redPreviousRoster = [];
 			for (const e of this.blue) {
-				this.bluePreviousRoster.push(e)
+				this.bluePreviousRoster.push(e);
 			}
 			for (const e of this.red) {
-				this.redPreviousRoster.push(e)
+				this.redPreviousRoster.push(e);
 			}
 		}
 		sessionStorage.setItem(this.inSessionStorageBluePreviousRoster, JSON.stringify(this.bluePreviousRoster));
@@ -299,7 +299,7 @@ export class Teams {
 							player.status = Status.blue;
 						}
 						else if (idx < this.#teamSize) {
-						player.status = Status.red;
+							player.status = Status.red;
 						}
 					});
 				}

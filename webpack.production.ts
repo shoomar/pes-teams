@@ -5,8 +5,9 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 import common from './webpack.common';
 
-const production: Configuration = merge(common, {
+const production : Configuration = merge(common, {
 	mode   : 'production',
+	// stats  : 'detailed',
 	output : {
 		path     : resolve(__dirname, 'docs'),
 		filename : '[name].[contenthash].js',

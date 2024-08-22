@@ -1,15 +1,17 @@
+import { storageNames } from '../types';
+
 export class Stars {
 
-	private backgroundColor = '#333';
-	private foregroundColor = '#ffb000';
-	private inSessionStorage = 'stars';
+	private backgroundColor : string = '#333';
+	private foregroundColor : string = '#ffb000';
+	private inSessionStorage = storageNames.session.stars;
 	private lvls = [ 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5 ];
 
-	private lastRoll = 0;
-	private lvlvsForRoll: number[] = [];
-	#min: number;
-	#max: number;
-	private selectedLvls: number[];
+	private lastRoll     : number = 0;
+	private lvlvsForRoll : number[] = [];
+	#min                 : number;
+	#max                 : number;
+	private selectedLvls : number[];
 
 	constructor(
 		private parentElement: HTMLDivElement

@@ -72,7 +72,7 @@
     "docs",
     "node_modules",
     "playwright-report",
-    // "tests",
+    "tests",
     "test-results"
   ]
 }

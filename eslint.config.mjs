@@ -1,4 +1,5 @@
 import typescriptEslint from 'typescript-eslint';
+import stylistic from '@stylistic/eslint-plugin';
 import globals from 'globals';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +16,7 @@ const compat = new FlatCompat({
 
 export default [
 	{
-		ignores : [ 'public', 'dist', 'build', 'node_modules' ],
+		ignores : [ 'public', 'dist', 'build', 'node_modules', 'docs' ],
 	},
 	...compat.extends(
 		'eslint:recommended',
@@ -25,6 +26,7 @@ export default [
 	{
 		plugins : {
 			'@typescript-eslint' : typescriptEslint.plugin,
+			'@stylistic'         : stylistic
 		},
 
 		languageOptions : {
@@ -46,64 +48,70 @@ export default [
 		settings : {},
 
 		rules : {
-			'array-bracket-newline' : [ 'error', 'consistent' ],
+			'@stylistic/array-bracket-newline' : [ 'warn', 'consistent' ],
 
-			'array-bracket-spacing' : [ 'error', 'always', {
+			'@stylistic/array-bracket-spacing' : [ 'warn', 'always', {
 				objectsInArrays : true,
 				arraysInArrays  : true,
 			} ],
 
-			'arrow-parens'  : 'error',
-			'arrow-spacing' : 'error',
+			'@stylistic/arrow-parens' : 'warn',
 
-			'brace-style' : [ 'error', 'stroustrup', {
+			'@stylistic/arrow-spacing' : 'warn',
+
+			'@stylistic/brace-style' : [ 'warn', 'stroustrup', {
 				allowSingleLine : true,
 			} ],
 
-			'comma-spacing' : [ 'error', {
+			'@stylistic/comma-spacing' : [ 'warn', {
 				before : false,
 				after  : true,
 			} ],
 
-			'generator-star-spacing' : [ 'error', {
+			'@stylistic/function-call-spacing' : [ 'warn', 'never' ],
+
+			'@stylistic/function-call-argument-newline' : [ 'warn', 'consistent' ],
+
+			'@stylistic/function-paren-newline' : [ 'warn', 'consistent' ],
+
+			'@stylistic/generator-star-spacing' : [ 'warn', {
 				before : true,
 				after  : false,
 			} ],
 
-			indent : [ 'error', 'tab', {
+			'@stylistic/indent' : [ 'warn', 'tab', {
 				SwitchCase : 1,
 			} ],
 
-			'jsx-quotes' : [ 'error', 'prefer-double' ],
+			'@stylistic/jsx-quotes' : [ 'warn', 'prefer-double' ],
 
-			'key-spacing' : [ 'error', {
+			'@stylistic/key-spacing' : [ 'warn', {
 				singleLine : {
 					beforeColon : false,
 					afterColon  : true,
 				},
-
 				multiLine : {
 					beforeColon : true,
 					afterColon  : true,
-					align       : 'colon',
+					align       : 'colon'
 				},
 			} ],
 
-			'keyword-spacing' : 'error',
-			'linebreak-style' : [ 'error', 'unix' ],
-			'no-extra-parens' : 'off',
+			'@stylistic/keyword-spacing' : 'warn',
 
-			'object-curly-newline' : [ 'error', {
+			'@stylistic/linebreak-style' : [ 'warn', 'unix' ],
+
+			'@stylistic/object-curly-newline' : [ 'warn', {
 				consistent : true,
 				multiline  : true,
 			} ],
 
-			'object-curly-spacing' : [ 'error', 'always', {
+			'@stylistic/object-curly-spacing' : [ 'warn', 'always', {
 				arraysInObjects  : true,
 				objectsInObjects : true,
 			} ],
 
-			'object-property-newline' : [ 'error', {
+			'@stylistic/object-property-newline' : [ 'warn', {
 				allowAllPropertiesOnSameLine : true,
 			} ],
 
@@ -112,14 +120,14 @@ export default [
 				'ignoreReadBeforeAssign' : false
 			} ],
 
-			quotes : [ 'error', 'single', {
+			'@stylistic/quotes' : [ 'warn', 'single', {
 				avoidEscape           : true,
 				allowTemplateLiterals : true,
 			} ],
 
-			'@typescript-eslint/member-delimiter-style' : 'error',
+			'@stylistic/member-delimiter-style' : 'warn',
 
-			'@typescript-eslint/no-extra-parens' : [ 'error', 'all', {
+			'@stylistic/no-extra-parens' : [ 'warn', 'all', {
 				ignoreJSX                   : 'multi-line',
 				enforceForArrowConditionals : false,
 				returnAssign                : false,
@@ -127,28 +135,40 @@ export default [
 				conditionalAssign           : false,
 			} ],
 
-			'@typescript-eslint/no-extra-semi' : [ 'error' ],
+			'@stylistic/no-extra-semi' : [ 'warn' ],
 
 			'@typescript-eslint/no-misused-promises' : [ 'error', {
 				checksVoidReturn : false,
 			} ],
 
-			'@typescript-eslint/no-non-null-assertion'     : 'warn',
-			'@typescript-eslint/no-unsafe-call'            : 'warn',
+			'@typescript-eslint/no-non-null-assertion' : 'warn',
+
+			'@typescript-eslint/no-unsafe-call' : 'warn',
+
 			'@typescript-eslint/no-unsafe-enum-comparison' : 'warn',
-			'@typescript-eslint/no-unsafe-member-access'   : 'warn',
-			'@typescript-eslint/no-unused-vars'            : 'error',
+
+			'@typescript-eslint/no-unsafe-member-access' : 'warn',
+
+			'@typescript-eslint/no-unused-vars' : 'error',
 
 			'@typescript-eslint/restrict-template-expressions' : [ 'error', {
 				allowNullish : true,
 			} ],
 
-			'@typescript-eslint/semi'                    : [ 'error' ],
-			'@typescript-eslint/type-annotation-spacing' : 'error',
-			semi                                         : [ 'off' ],
-			'space-before-blocks'                        : [ 'error', 'always' ],
+			'@stylistic/semi' : [ 'warn' ],
 
-			'space-infix-ops' : [ 'error', {
+			'@stylistic/type-annotation-spacing' : [ 'warn', {
+				overrides : {
+					colon : {
+						before : false,
+						after  : true
+					}
+				}
+			} ],
+
+			'@stylistic/space-before-blocks' : [ 'warn', 'always' ],
+
+			'@stylistic/space-infix-ops' : [ 'warn', {
 				int32Hint : true,
 			} ],
 		},
@@ -157,10 +177,14 @@ export default [
 		files : [ '**/*.js', '**/*.mjs' ],
 
 		rules : {
-			'@typescript-eslint/no-var-requires'               : 'off',
-			'@typescript-eslint/no-unsafe-member-access'       : 'warn',
-			'@typescript-eslint/no-unsafe-assignment'          : 'warn',
-			'@typescript-eslint/no-unsafe-call'                : 'warn',
+			'@typescript-eslint/no-var-requires' : 'off',
+
+			'@typescript-eslint/no-unsafe-member-access' : 'warn',
+
+			'@typescript-eslint/no-unsafe-assignment' : 'warn',
+
+			'@typescript-eslint/no-unsafe-call' : 'warn',
+
 			'@typescript-eslint/restrict-template-expressions' : 'warn',
 		},
 	}

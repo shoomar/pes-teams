@@ -1,7 +1,7 @@
 import { Configuration } from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
-const common: Configuration = {
+const common : Configuration = {
 	entry  : './src/index.ts',
 	module : {
 		rules : [
@@ -11,7 +11,14 @@ const common: Configuration = {
 			},
 			{
 				test : /\.tsx?$/,
-				use  : 'ts-loader',
+				use  : [
+					{
+						loader  : 'ts-loader',
+						options : {
+							configFile : 'tsconfig-webpack.json'
+						}
+					}
+				],
 			}
 		]
 	},
