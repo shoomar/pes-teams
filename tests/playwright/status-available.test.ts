@@ -3,7 +3,7 @@ import { Player } from '../../src/classes';
 import { playerList } from '../../src/customizable';
 import { Status } from '../../src/types';
 
-test('status available', async ({ page }) => {
+test('status-available', async ({ page }) => {
 	await page.goto('http://127.0.0.1:3000/');
 	await page.getByRole('button', { name: 'Add', exact: true }).click();
 	await page.getByText('Aca Todorović').click();
@@ -20,9 +20,10 @@ test('status available', async ({ page }) => {
 	let playerPool = await page.evaluate(() => {
 		const p = window.sessionStorage.getItem('playerPool');
 		if (p) {
-			return JSON.parse(p);
+			return JSON.parse(p) as Player[];
 		}
-	}) as Player[];
+		else throw new Error('no playerPool in storage.');
+	});
 	expect(playerPool).toHaveLength(playerList.length);
 	expect(
 		playerPool.filter((p) => p.status === Status.available)
@@ -41,9 +42,10 @@ test('status available', async ({ page }) => {
 	playerPool = await page.evaluate(() => {
 		const p = window.sessionStorage.getItem('playerPool');
 		if (p) {
-			return JSON.parse(p);
+			return JSON.parse(p) as Player[];
 		}
-	}) as Player[];
+		else throw new Error('no playerPool in storage.');
+	});
 	expect(
 		playerPool.filter((p) => p.status === Status.available)
 	).toHaveLength(0);

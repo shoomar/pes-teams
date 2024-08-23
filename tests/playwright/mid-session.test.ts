@@ -1,7 +1,8 @@
 
 import { test, expect } from '@playwright/test';
 
-test('status available', async ({ page }) => {
+
+test('mid-session', async ({ page }) => {
 	await page.goto('http://127.0.0.1:3000/');
 	await page.getByRole('button', { name: 'Add', exact: true }).click();
 	await page.getByText('Aca Todorović').click();
@@ -22,18 +23,18 @@ test('status available', async ({ page }) => {
 	let midSession = await page.evaluate(() => {
 		const p = window.sessionStorage.getItem('midSession');
 		if (p) {
-			return JSON.parse(p);
+			return JSON.parse(p) as boolean;
 		}
 	});
 	expect(midSession).toBe(true);
 
 	await page.locator('#available-players').getByText('Aca Todorović').click({ clickCount: 2 });
-	await page.locator('#available-players').getByText('Aca Todorović');
+	await page.locator('#available-players').getByText('Aca Todorović').isVisible();
 
 	midSession = await page.evaluate(() => {
 		const p = window.sessionStorage.getItem('midSession');
 		if (p) {
-			return JSON.parse(p);
+			return JSON.parse(p) as boolean;
 		}
 	});
 	expect(midSession).toBe(true);
@@ -44,7 +45,7 @@ test('status available', async ({ page }) => {
 	midSession = await page.evaluate(() => {
 		const p = window.sessionStorage.getItem('midSession');
 		if (p) {
-			return JSON.parse(p);
+			return JSON.parse(p) as boolean;
 		}
 	});
 	expect(midSession).toBe(false);
